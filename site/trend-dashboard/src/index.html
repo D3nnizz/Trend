@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trend Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Trend Dashboard</h1>
+        <label for="timeframe">Select Timeframe:</label>
+        <select id="timeframe">
+            <option value="trend_15m.csv">15 Minutes</option>
+            <option value="trend_1h.csv">1 Hour</option>
+            <option value="trend_30m.csv">30 Minutes</option>
+            <option value="trend_3m.csv">3 Minutes</option>
+            <option value="trend_5m.csv">5 Minutes</option>
+        </select>
+        <canvas id="trendChart"></canvas>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
