@@ -412,10 +412,11 @@
                             type: 'time',
                             time: {
                                 displayFormats: {
-                                    day: 'MMM DD',
-                                    month: 'MMM YYYY',
-                                    year: 'YYYY'
-                                }
+                                    day: 'MMM dd',
+                                    month: 'MMM yyyy',
+                                    year: 'yyyy'
+                                },
+                                tooltipFormat: 'MMM dd, yyyy'
                             },
                             grid: {
                                 color: 'rgba(0,0,0,0.1)'
@@ -423,7 +424,8 @@
                             ticks: {
                                 font: {
                                     size: 12
-                                }
+                                },
+                                maxTicksLimit: 10
                             }
                         },
                         y: {
