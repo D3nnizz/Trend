@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Charts Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #f8f8f8;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: calc(100vh - 50px);
+    }
+    select {
+      font-size: 16px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <label for="timeframe">Kies timeframe: </label>
+    <select id="timeframe">
+      <option value="chart_3m.html"> 3m </option><option value="chart_5m.html"> 5m </option><option value="chart_15m.html"> 15m </option><option value="chart_30m.html"> 30m </option><option value="chart_1h.html"> 1h </option><option value="chart_4h.html"> 4h </option><option value="chart_1d.html"> 1d </option>
+    </select>
+  </header>
+
+  <iframe id="chartFrame" src="chart_3m.html"></iframe>
+
+  <script>
+    const select = document.getElementById("timeframe");
+    const iframe = document.getElementById("chartFrame");
+
+    select.addEventListener("change", () => {
+      iframe.src = select.value + "?cachebuster=" + new Date().getTime();
+    });
+
+    // Auto-refresh elke 30s
+    setInterval(() => {
+      iframe.src = select.value + "?cachebuster=" + new Date().getTime();
+    }, 30000);
+  </script>
+</body>
+</html>
