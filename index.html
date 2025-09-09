@@ -317,6 +317,26 @@
             });
         }
 
+        //////////////////////////////////////////
+        function updateLastRefreshTime() {
+            const chartInfo = document.getElementById('chartInfo');
+            let lastUpdated = document.createElement('p');
+            lastUpdated.id = 'lastRefreshTime';
+            lastUpdated.style.fontSize = '0.8em';
+            lastUpdated.style.color = '#999';
+            lastUpdated.style.marginTop = '5px';
+            lastUpdated.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+
+            // Remove existing if already exists
+            const existing = document.getElementById('lastRefreshTime');
+            if (existing) {
+                existing.remove();
+            }
+
+            chartInfo.appendChild(lastUpdated);
+        }
+        //////////////////////////////////////////
+
         function createChart(data, fileInfo, isAutoRefresh = false) {
             if (!isAutoRefresh) {
                 hideLoading();
