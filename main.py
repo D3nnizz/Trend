@@ -8,7 +8,7 @@ timeframes = ["3m", "5m", "15m", "30m", "1h", "4h", "1d"]
 # === 1. Maak charts voor elk timeframe ===
 for tf in timeframes:
     fig, ax = plt.subplots()
-    ax.plot([1, 22, 3, 45], [12, 20, 25, 30], marker="o")  # vervang dit met je eigen data per timeframe
+    ax.plot([1, 2, 3, 4], [12, 20, 25, 30], marker="o")  # vervang dit met je eigen data per timeframe
     ax.set_title(f"Chart voor {tf}")
 
     chart_file = f"chart_{tf}.html"
