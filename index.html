@@ -75,7 +75,14 @@
       const timestamps = data.map(row => row.timestamp);
       const trendEMA = data.map(row => row.trend_ema);
 
-      const gradientColors = trendEMA.map(v => v >= 0 ? '#22c55e' : (v > -0.5 ? '#f97316' : '#ef4444'));
+      // Create gradient color array for line
+      const gradientColors = trendEMA.map(v => {
+        if (v < 0) {
+          return v < -0.5 ? '#ef4444' : '#f97316'; // red for low, orange closer to zero
+        } else {
+          return '#22c55e'; // green above zero
+        }
+      });
 
       const traceGradient = {
         x: timestamps,
@@ -88,6 +95,10 @@
         hovertemplate: '%{y:.4f}<extra></extra>'
       };
 
+      const yMax = Math.max(...trendEMA);
+      const yMin = Math.min(...trendEMA);
+      const maxAbs = Math.max(Math.abs(yMax), Math.abs(yMin));
+
       const layout = {
         title: {
           text: 'Trend EMA Overview',
@@ -98,9 +109,10 @@
         xaxis: { title: 'Timestamp', showgrid: false, color: '#1e3a8a' },
         yaxis: {
           title: 'Trend EMA',
+          range: [-maxAbs, maxAbs], // Center zero line
           zeroline: true,
-          zerolinewidth: 2,
-          zerolinecolor: '#3b82f6',
+          zerolinewidth: 3,
+          zerolinecolor: '#000',
           color: '#ef4444'
         },
         margin: { t: 50, r: 30, l: 60, b: 50 }
