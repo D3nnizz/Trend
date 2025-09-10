@@ -1,457 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMA Trend Dashboard</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #2c3e50;
-        }
-        
-        .header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: 300;
-            letter-spacing: -1px;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .timeframe-selector {
-            position: relative;
-        }
-        
-        .timeframe-selector select {
-            padding: 12px 20px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            background: white;
-            color: #2c3e50;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 12px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            padding-right: 40px;
-        }
-        
-        .timeframe-selector select:hover {
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(46, 204, 113, 0.1);
-            border: 1px solid rgba(46, 204, 113, 0.3);
-            border-radius: 20px;
-            color: #27ae60;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #27ae60;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 500px;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-        
-        .chart-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .info-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            text-align: center;
-        }
-        
-        .info-card h3 {
-            margin: 0 0 10px 0;
-            color: #7f8c8d;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .info-card .value {
-            font-size: 24px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .error-message {
-            background: rgba(231, 76, 60, 0.1);
-            border: 1px solid rgba(231, 76, 60, 0.3);
-            color: #c0392b;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-        }
-        
-        .loading::after {
-            content: '...';
-            animation: dots 1s steps(5, end) infinite;
-        }
-        
-        @keyframes dots {
-            0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); }
-            40% { color: #7f8c8d; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); }
-            60% { text-shadow: .25em 0 0 #7f8c8d, .5em 0 0 rgba(0,0,0,0); }
-            80%, 100% { text-shadow: .25em 0 0 #7f8c8d, .5em 0 0 #7f8c8d; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trend EMA Gradient Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    body { background: #f0f0f0; font-family: sans-serif; }
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f0f0f0;
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      border: 2px solid #3b82f6;
+    }
+    h1 {
+      text-align: center;
+      padding: 1rem;
+      color: #60a5fa;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+    select {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      border: none;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      color: #0000ff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    canvas { width: 100% !important; height: 650px !important; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>EMA Trend Dashboard</h1>
-        </div>
-        
-        <div class="controls">
-            <div class="timeframe-selector">
-                <select id="timeframeSelect">
-                    <option value="trend_3m.csv">3 Minutes</option>
-                    <option value="trend_5m.csv">5 Minutes</option>
-                    <option value="trend_30m.csv">30 Minutes</option>
-                </select>
-            </div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span>Auto-refresh: 1 min</span>
-            </div>
-        </div>
-        
-        <div class="chart-container">
-            <canvas id="emaTrendChart"></canvas>
-        </div>
-        
-        <div class="chart-info">
-            <div class="info-card">
-                <h3>Latest Value</h3>
-                <div class="value" id="latestValue">--</div>
-            </div>
-            <div class="info-card">
-                <h3>Data Points</h3>
-                <div class="value" id="dataPoints">--</div>
-            </div>
-            <div class="info-card">
-                <h3>Last Updated</h3>
-                <div class="value" id="lastUpdated">--</div>
-            </div>
-            <div class="info-card">
-                <h3>Timeframe</h3>
-                <div class="value" id="currentTimeframe">3 Minutes</div>
-            </div>
-        </div>
-        
-        <div id="errorMessage"></div>
-        <div id="loadingMessage" class="loading" style="display: none;">Loading data</div>
-    </div>
+  <div class="container">
+    <h1>📊 Trend EMA Dashboard</h1>
+    <select id="fileSelect">
+      <option value="data/trend_3m.csv">Trend 3 minuten</option>
+      <option value="data/trend_5m.csv">Trend 5 minuten</option>
+      <option value="data/trend_15m.csv">Trend 15 minuten</option>
+      <option value="data/trend_30m.csv">Trend 30 minuten</option>
+      <option value="data/trend_1h.csv">Trend 1 uur</option>
+      <option value="data/trend_4h.csv">Trend 4 uur</option>
+      <option value="data/trend_1d.csv">Trend 1 dag</option>
+    </select>
+    <canvas id="trendChart"></canvas>
+  </div>
 
-    <script>
-        let chart;
-        let refreshInterval;
-        
-        const colors = {
-            red: '#e74c3c',
-            blue: '#3498db',
-            lightBlue: '#87ceeb',
-            gray: '#95a5a6'
-        };
-        
-        // Initialize chart
-        function initChart() {
-            const ctx = document.getElementById('emaTrendChart').getContext('2d');
-            
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'EMA Trend',
-                        data: [],
-                        borderColor: colors.blue,
-                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: colors.blue,
-                        pointBorderColor: colors.lightBlue,
-                        pointRadius: 3,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: {
-                                    size: 14
-                                }
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: 'white',
-                            bodyColor: 'white',
-                            borderColor: colors.blue,
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        x: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Time',
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        y: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'EMA Trend',
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                }
-                            },
-                            grid: {
-                                color: function(context) {
-                                    if (context.tick.value === 0) {
-                                        return colors.red; // Red line for zero
-                                    }
-                                    return 'rgba(0, 0, 0, 0.1)';
-                                },
-                                lineWidth: function(context) {
-                                    if (context.tick.value === 0) {
-                                        return 2; // Thicker line for zero
-                                    }
-                                    return 1;
-                                }
-                            },
-                            beginAtZero: false,
-                            // This will center the zero line
-                            afterDataLimits: function(scale) {
-                                const maxAbs = Math.max(Math.abs(scale.max), Math.abs(scale.min));
-                                scale.max = maxAbs;
-                                scale.min = -maxAbs;
-                            }
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
-                    }
-                }
-            });
-        }
-        
-        // Load and parse CSV data
-        async function loadData(filename) {
-            try {
-                document.getElementById('loadingMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '';
-                
-                // Use fetch to load CSV file
-                const response = await fetch(`data/${filename}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status} - Make sure ${filename} exists in the data folder`);
-                }
-                
-                const csvData = await response.text();
-                
-                const results = Papa.parse(csvData, {
-                    header: true,
-                    dynamicTyping: true,
-                    skipEmptyLines: true,
-                    delimitersToGuess: [',', '\t', '|', ';']
-                });
-                
-                if (results.errors.length > 0) {
-                    throw new Error('CSV parsing errors: ' + results.errors.map(e => e.message).join(', '));
-                }
-                
-                const data = results.data.filter(row => 
-                    row.timestamp && 
-                    row.trend_ema !== null && 
-                    row.trend_ema !== undefined && 
-                    !isNaN(row.trend_ema)
-                );
-                
-                if (data.length === 0) {
-                    throw new Error('No valid data found in CSV file - check that timestamp and trend_ema columns exist');
-                }
-                
-                // Sort by timestamp
-                data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                
-                updateChart(data);
-                updateInfo(data, filename);
-                
-                document.getElementById('loadingMessage').style.display = 'none';
-                
-            } catch (error) {
-                document.getElementById('loadingMessage').style.display = 'none';
-                document.getElementById('errorMessage').innerHTML = 
-                    `<div class="error-message">Error loading ${filename}: ${error.message}</div>`;
-                console.error('Error loading data:', error);
-            }
-        }
-        
-        // Update chart with new data
-        function updateChart(data) {
-            const labels = data.map(row => {
-                const date = new Date(row.timestamp);
-                return date.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-            });
-            
-            const values = data.map(row => parseFloat(row.trend_ema) || 0);
-            
-            chart.data.labels = labels;
-            chart.data.datasets[0].data = values;
-            chart.update('none'); // Smooth update without animation
-        }
-        
-        // Update info cards
-        function updateInfo(data, filename) {
-            const latestValue = data[data.length - 1]?.trend_ema || 0;
-            const timeframeMap = {
-                'trend_3m.csv': '3 Minutes',
-                'trend_5m.csv': '5 Minutes',
-                'trend_30m.csv': '30 Minutes'
-            };
-            
-            document.getElementById('latestValue').textContent = 
-                parseFloat(latestValue).toFixed(6);
-            document.getElementById('dataPoints').textContent = data.length;
-            document.getElementById('lastUpdated').textContent = 
-                new Date().toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-            document.getElementById('currentTimeframe').textContent = 
-                timeframeMap[filename] || filename;
-        }
-        
-        // Setup auto-refresh
-        function setupAutoRefresh() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-            
-            refreshInterval = setInterval(() => {
-                const selectedTimeframe = document.getElementById('timeframeSelect').value;
-                loadData(selectedTimeframe);
-            }, 60000); // 60 seconds
-        }
-        
-        // Event listeners
-        document.getElementById('timeframeSelect').addEventListener('change', function() {
-            const selectedTimeframe = this.value;
-            loadData(selectedTimeframe);
+  <script>
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    let chart;
+
+    async function loadCSV(filePath) {
+      return new Promise((resolve, reject) => {
+        Papa.parse(filePath, {
+          download: true,
+          header: true,
+          dynamicTyping: true,
+          complete: (results) => resolve(results.data),
+          error: (err) => reject(err),
         });
-        
-        // Initialize everything
-        window.addEventListener('load', function() {
-            initChart();
-            loadData('trend_3m.csv'); // Load default data
-            setupAutoRefresh();
-        });
-        
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', function() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-        });
-    </script>
+      });
+    }
+
+async function updateChart() {
+  const filePath = document.getElementById('fileSelect').value;
+  const data = await loadCSV(filePath);
+  const labels = data.map(row => row.timestamp);
+  const trendEMA = data.map(row => row.trend_ema);
+
+  if (chart) chart.destroy();
+
+  // find max absolute value for symmetric axis
+  let maxAbs = Math.max(...trendEMA.map(v => Math.abs(v)));
+
+  // add a little padding so the line isn’t glued to the edge
+  maxAbs = maxAbs * 1.1;
+
+  // custom plugin to draw zero line
+  const zeroLinePlugin = {
+    id: 'zeroLine',
+    afterDraw: (chart) => {
+      const { ctx, scales: { y, x } } = chart;
+      const yZero = y.getPixelForValue(0);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x.left, yZero);
+      ctx.lineTo(x.right, yZero);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#000'; // bold black
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Trend EMA',
+        data: trendEMA,
+        borderWidth: 3,
+        fill: false,
+        pointRadius: 0,
+        borderColor: (context) => {
+          const chart = context.chart;
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return '#3b82f6';
+          const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+          gradient.addColorStop(0, '#ef4444');
+          gradient.addColorStop(0.45, '#f97316');
+          gradient.addColorStop(0.55, '#22c55e');
+          gradient.addColorStop(1, '#22c55e');
+          return gradient;
+        },
+        tension: 0.25,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      backgroundColor: '#f0f0f0',
+    scales: {
+      y: {
+        title: { display: true, text: 'Trend EMA' },
+        grid: { color: '#ddd' },
+        min: -maxAbs,   // symmetric
+        max: maxAbs,    // symmetric
+        ticks: {
+          color: '#1e3a8a',
+          stepSize: maxAbs / 5, // ensures equal spacing above/below zero
+          callback: function(value) {
+            return value.toFixed(4);
+          }
+        }
+      },
+      x: {
+        ticks: { maxTicksLimit: 10, color: '#1e3a8a' },
+        grid: { color: '#eee' }
+      }
+    },
+      plugins: {
+        legend: { display: false }
+      }
+    },
+    plugins: [zeroLinePlugin]
+  });
+}
+
+
+    document.getElementById('fileSelect').addEventListener('change', updateChart);
+
+    updateChart();
+    setInterval(updateChart, 60000);
+  </script>
 </body>
 </html>
