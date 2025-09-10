@@ -280,8 +280,9 @@
       const ctx = document.getElementById('emaTrendChart').getContext('2d');
       const t = chartThemes[theme];
 
+      // If a chart already exists, destroy it first
       if (chart) {
-        try { chart.destroy(); } catch (e) {}
+        try { chart.destroy(); } catch (e) { /* ignore */ }
         chart = null;
       }
 
@@ -292,25 +293,15 @@
           datasets: [{
             label: 'EMA Trend',
             data: [],
+            borderColor: t.borderColor,
+            backgroundColor: t.backgroundColor,
             borderWidth: 2,
-            fill: false,
+            fill: true,
             tension: 0.35,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-            borderColor: function(context) {
-              const chartArea = context.chart.chartArea;
-              if (!chartArea) return t.borderColor;
-
-              const { top, bottom } = chartArea;
-              const gradient = ctx.createLinearGradient(0, bottom, 0, top);
-
-              // Gradient: red (low) → yellow (zero) → green (high)
-              gradient.addColorStop(0, 'red');
-              gradient.addColorStop(0.5, 'yellow');
-              gradient.addColorStop(1, 'green');
-
-              return gradient;
-            }
+            pointBackgroundColor: t.borderColor,
+            pointBorderColor: t.borderColor,
+            pointRadius: 3,
+            pointHoverRadius: 6
           }]
         },
         options: {
@@ -336,11 +327,18 @@
               intersect: false
             }
           },
-          interaction: { mode: 'nearest', axis: 'x', intersect: false },
+          interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false
+          },
           scales: {
             x: {
+              display: true,
               ticks: { color: t.fontColor },
-              grid: { color: t.gridColor },
+              grid: {
+                color: t.gridColor
+              },
               title: {
                 display: true,
                 text: 'Time',
@@ -349,10 +347,18 @@
               }
             },
             y: {
+              display: true,
               ticks: { color: t.fontColor },
               grid: {
-                color: ctx => ctx.tick.value === 0 ? t.zeroLineColor : t.gridColor,
-                lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1
+                color: function(context) {
+                  // if tick exists and equals zero, draw zero line in special color
+                  if (context.tick && context.tick.value === 0) return t.zeroLineColor;
+                  return t.gridColor;
+                },
+                lineWidth: function(context) {
+                  if (context.tick && context.tick.value === 0) return 2;
+                  return 1;
+                }
               },
               title: {
                 display: true,
@@ -362,6 +368,7 @@
               },
               beginAtZero: false,
               afterDataLimits: function(scale) {
+                // center zero line by making max & min symmetric
                 const maxAbs = Math.max(Math.abs(scale.max), Math.abs(scale.min));
                 scale.max = maxAbs;
                 scale.min = -maxAbs;
@@ -371,7 +378,6 @@
         }
       });
     }
-
 
     function updateChartTheme(theme) {
       if (!chart) return;
