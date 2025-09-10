@@ -177,8 +177,12 @@
             <div class="timeframe-selector">
                 <select id="timeframeSelect">
                     <option value="trend_3m.csv">3 Minutes</option>
-                    <option value="trend_5m.csv">5 Minutes</option>
+                    <option value="trend_5m.csv">5 Minutes</option>`
+                    <oprion value="trend_15m.csv">15 Minutes</option>
                     <option value="trend_30m.csv">30 Minutes</option>
+                    <option value="trend_1h.csv">1 Hour</option>
+                    <option value="trend_4h.csv">4 Hours</option>   
+                    <option value="trend_1d.csv">1 Day</option>
                 </select>
             </div>
             <div class="status-indicator">
@@ -412,7 +416,7 @@
                 parseFloat(latestValue).toFixed(6);
             document.getElementById('dataPoints').textContent = data.length;
             document.getElementById('lastUpdated').textContent = 
-                new Date().toLocaleTimeString('en-US', { 
+                new Date().toLocaleTimeString('en-NL', { 
                     hour: '2-digit', 
                     minute: '2-digit',
                     second: '2-digit'
