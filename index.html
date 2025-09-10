@@ -128,24 +128,25 @@ async function updateChart() {
       responsive: true,
       maintainAspectRatio: false,
       backgroundColor: '#f0f0f0',
-      scales: {
-        y: {
-          title: { display: true, text: 'Trend EMA' },
-          grid: { color: '#ddd' },
-          min: -maxAbs,   // FORCE symmetric axis
-          max: maxAbs,    // FORCE symmetric axis
-          ticks: {
-            color: '#1e3a8a',
-            callback: function(value) {
-              return value.toFixed(4);
-            }
+    scales: {
+      y: {
+        title: { display: true, text: 'Trend EMA' },
+        grid: { color: '#ddd' },
+        min: -maxAbs,   // symmetric
+        max: maxAbs,    // symmetric
+        ticks: {
+          color: '#1e3a8a',
+          stepSize: maxAbs / 5, // ensures equal spacing above/below zero
+          callback: function(value) {
+            return value.toFixed(4);
           }
-        },
-        x: {
-          ticks: { maxTicksLimit: 10, color: '#1e3a8a' },
-          grid: { color: '#eee' }
         }
       },
+      x: {
+        ticks: { maxTicksLimit: 10, color: '#1e3a8a' },
+        grid: { color: '#eee' }
+      }
+    },
       plugins: {
         legend: { display: false }
       }
