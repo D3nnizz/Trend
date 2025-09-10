@@ -176,9 +176,9 @@
         <div class="controls">
             <div class="timeframe-selector">
                 <select id="timeframeSelect">
-                    <option value="data\trend_3m.csv">3 Minutes</option>
-                    <option value="data\trend_5m.csv">5 Minutes</option>
-                    <option value="data\trend_30m.csv">30 Minutes</option>
+                    <option value="trend_3m.csv">3 Minutes</option>
+                    <option value="trend_5m.csv">5 Minutes</option>
+                    <option value="trend_30m.csv">30 Minutes</option>
                 </select>
             </div>
             <div class="status-indicator">
@@ -335,7 +335,13 @@
                 document.getElementById('loadingMessage').style.display = 'block';
                 document.getElementById('errorMessage').innerHTML = '';
                 
-                const csvData = await window.fs.readFile(`data/${filename}`, { encoding: 'utf8' });
+                // Use fetch to load CSV file
+                const response = await fetch(`data/${filename}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status} - Make sure ${filename} exists in the data folder`);
+                }
+                
+                const csvData = await response.text();
                 
                 const results = Papa.parse(csvData, {
                     header: true,
@@ -356,7 +362,7 @@
                 );
                 
                 if (data.length === 0) {
-                    throw new Error('No valid data found in CSV file');
+                    throw new Error('No valid data found in CSV file - check that timestamp and trend_ema columns exist');
                 }
                 
                 // Sort by timestamp
