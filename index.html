@@ -12,7 +12,7 @@
       max-width: 1200px;
       margin: 2rem auto;
       padding: 1rem;
-      background: #fff;
+      background: #f0f0f0;
       border-radius: 1.5rem;
       box-shadow: 0 8px 20px rgba(0,0,0,0.15);
       border: 2px solid #3b82f6;
@@ -20,9 +20,7 @@
     h1 {
       text-align: center;
       padding: 1rem;
-      background: linear-gradient(90deg, #1e3a8a, #3b82f6, #ef4444);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #60a5fa;
       font-size: 2rem;
       font-weight: 800;
     }
@@ -122,13 +120,19 @@ async function updateChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      backgroundColor: '#f0f0f0',
       scales: {
         y: {
           title: { display: true, text: 'Trend EMA' },
           grid: { color: '#ddd' },
           min: -maxAbs,
           max: maxAbs,
-          ticks: { color: '#ef4444' }
+          ticks: { 
+            color: '#ef4444',
+            callback: function(value) {
+              return value.toFixed(4);
+            }
+          }
         },
         x: {
           ticks: { maxTicksLimit: 10, color: '#1e3a8a' },
