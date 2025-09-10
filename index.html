@@ -9,7 +9,7 @@
   <style>
     body { background: #f0f0f0; font-family: sans-serif; }
     .container {
-      max-width: 900px;
+      max-width: 1200px;
       margin: 2rem auto;
       padding: 1rem;
       background: #fff;
@@ -37,7 +37,7 @@
       font-weight: bold;
       cursor: pointer;
     }
-    canvas { width: 100% !important; height: 500px !important; }
+    canvas { width: 100% !important; height: 650px !important; }
   </style>
 </head>
 <body>
@@ -75,6 +75,9 @@
 
       if (chart) chart.destroy();
 
+      // find max absolute value for symmetric axis
+      const maxAbs = Math.max(...trendEMA.map(v => Math.abs(v)));
+
       chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -84,6 +87,7 @@
             data: trendEMA,
             borderWidth: 3,
             fill: false,
+            pointRadius: 0, // hide points
             borderColor: (context) => {
               const chart = context.chart;
               const { ctx, chartArea } = chart;
@@ -106,7 +110,11 @@
               title: { display: true, text: 'Trend EMA' },
               grid: { color: '#ddd' },
               ticks: { color: '#ef4444' },
-              beginAtZero: true
+              suggestedMin: -maxAbs,
+              suggestedMax: maxAbs,
+              // highlight zero line
+              zeroLineWidth: 3,
+              zeroLineColor: '#000'
             },
             x: {
               ticks: { maxTicksLimit: 10, color: '#1e3a8a' },
