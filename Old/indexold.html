@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trend Chart Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        function startAutoRefresh() {
+            stopAutoRefresh(); // Clear any existing interval
+            
+            if (currentFileName) {
+                autoRefreshInterval = setInterval(() => {
+                    if (currentFileName && !document.hidden) {
+                        loadCSVData(currentFileName, true); // true flag indicates it's an auto-refresh
+                    }
+                }, 60000); // 60000ms = 1 minute
+                
+                updateLastRefreshTime();
+            }
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #333;
+        }
+
+        select {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 2px solid #e1e8ed;
+            border-radius: 50px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        select:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+        }
+
+        .chart-container {
+            padding: 40px;
+            position: relative;
+            background: white;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 500px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #c62828;
+        }
+
+        .chart-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .chart-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .chart-info p {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 Trend Chart Dashboard</h1>
+            <p>Interactive data visualization for your CSV files</p>
+        </div>
+
+        <div class="controls">
+            <div class="dropdown-container">
+                <label for="fileSelect">Choose Data File:</label>
+                <select id="fileSelect">
+                    <option value="">Select a file...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div id="loadingIndicator" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                Loading chart data...
+            </div>
+            <div id="errorMessage" class="error" style="display: none;"></div>
+            <div id="chartInfo" class="chart-info" style="display: none;">
+                <h3 id="chartTitle">Chart Title</h3>
+                <p id="chartDescription">Chart description</p>
+            </div>
+            <div class="chart-wrapper" id="chartWrapper" style="display: none;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Add your CSV files here
+        const CSV_FILES = [
+            { filename: 'sales_data.csv', title: 'Sales Trends', description: 'Monthly sales performance data' },
+            { filename: 'user_growth.csv', title: 'User Growth', description: 'User registration trends over time' },
+            { filename: 'revenue.csv', title: 'Revenue Analysis', description: 'Revenue trends and projections' },
+            // Add more files as needed
+        ];
+
+        let currentChart = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            populateDropdown();
+            setupEventListeners();
+        });
+
+        function populateDropdown() {
+            const select = document.getElementById('fileSelect');
+            
+            CSV_FILES.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file.filename;
+                option.textContent = file.title;
+                select.appendChild(option);
+            });
+        }
+
+        function setupEventListeners() {
+            document.getElementById('fileSelect').addEventListener('change', function(e) {
+                if (e.target.value) {
+                    loadCSVData(e.target.value);
+                } else {
+                    hideChart();
+                }
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'flex';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('chartWrapper').style.display = 'none';
+            document.getElementById('chartInfo').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        function showError(message) {
+            hideLoading();
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            document.getElementById('chartWrapper').style.display = 'none';
+            document.getElementById('chartInfo').style.display = 'none';
+        }
+
+        function hideChart() {
+            document.getElementById('chartWrapper').style.display = 'none';
+            document.getElementById('chartInfo').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            hideLoading();
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+        }
+
+        function loadCSVData(filename) {
+            showLoading();
+
+            // Find file info
+            const fileInfo = CSV_FILES.find(f => f.filename === filename);
+            
+            fetch(`data/${filename}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${filename}. Make sure the file exists in the data folder.`);
+                    }
+                    return response.text();
+                })
+                .then(csvText => {
+                    parseAndDisplayChart(csvText, fileInfo);
+                })
+                .catch(error => {
+                    showError(error.message);
+                });
+        }
+
+        function parseAndDisplayChart(csvText, fileInfo) {
+            Papa.parse(csvText, {
+                header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.errors.length > 0) {
+                        showError('Error parsing CSV: ' + results.errors[0].message);
+                        return;
+                    }
+
+                    if (results.data.length === 0) {
+                        showError('No data found in the CSV file.');
+                        return;
+                    }
+
+                    try {
+                        createChart(results.data, fileInfo);
+                    } catch (error) {
+                        showError('Error creating chart: ' + error.message);
+                    }
+                },
+                error: function(error) {
+                    showError('Error parsing CSV: ' + error.message);
+                }
+            });
+        }
+
+        function createChart(data, fileInfo, isAutoRefresh = false) {
+            if (!isAutoRefresh) {
+                hideLoading();
+            }
+
+            // Show chart info
+            document.getElementById('chartTitle').textContent = fileInfo.title;
+            document.getElementById('chartDescription').textContent = fileInfo.description;
+            document.getElementById('chartInfo').style.display = 'block';
+
+            // Update refresh indicator
+            updateLastRefreshTime();
+
+            // Detect date and value columns
+            const columns = Object.keys(data[0]);
+            let dateColumn = columns.find(col => 
+                col.toLowerCase().includes('date') || 
+                col.toLowerCase().includes('time') ||
+                col.toLowerCase().includes('day') ||
+                col.toLowerCase().includes('month')
+            ) || columns[0];
+
+            let valueColumn = columns.find(col => 
+                col.toLowerCase().includes('value') || 
+                col.toLowerCase().includes('amount') ||
+                col.toLowerCase().includes('count') ||
+                col.toLowerCase().includes('revenue') ||
+                col.toLowerCase().includes('sales')
+            ) || columns[1];
+
+            // Prepare chart data
+            const chartData = data
+                .filter(row => row[dateColumn] && row[valueColumn] !== null && row[valueColumn] !== undefined)
+                .map(row => ({
+                    x: new Date(row[dateColumn]),
+                    y: parseFloat(row[valueColumn]) || 0
+                }))
+                .sort((a, b) => a.x - b.x);
+
+            if (chartData.length === 0) {
+                if (!isAutoRefresh) {
+                    showError('No valid data points found. Make sure your CSV has date and value columns.');
+                }
+                return;
+            }
+
+            // Destroy existing chart
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            // Show chart container
+            document.getElementById('chartWrapper').style.display = 'block';
+
+            // Create new chart
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: fileInfo.title,
+                        data: chartData,
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#4facfe',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    day: 'MMM dd',
+                                    month: 'MMM yyyy',
+                                    year: 'yyyy'
+                                },
+                                tooltipFormat: 'MMM dd, yyyy'
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                },
+                                maxTicksLimit: 10
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                },
+                                callback: function(value) {
+                                    // Format numbers with appropriate precision
+                                    return typeof value === 'number' ? value.toFixed(2) : value;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    animation: {
+                        duration: isAutoRefresh ? 500 : 1000, // Faster animation for auto-refresh
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
