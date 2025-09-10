@@ -87,15 +87,15 @@
             borderColor: (context) => {
               const chart = context.chart;
               const { ctx, chartArea } = chart;
-              if (!chartArea) return '#3b82f6'; // fallback
+              if (!chartArea) return '#3b82f6';
               const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-              gradient.addColorStop(0, '#ef4444'); // red below
-              gradient.addColorStop(0.45, '#f97316'); // orange near zero
-              gradient.addColorStop(0.55, '#22c55e'); // green above zero
+              gradient.addColorStop(0, '#ef4444');
+              gradient.addColorStop(0.45, '#f97316');
+              gradient.addColorStop(0.55, '#22c55e');
               gradient.addColorStop(1, '#22c55e');
               return gradient;
             },
-            tension: 0.25, // smooth curve
+            tension: 0.25,
           }]
         },
         options: {
@@ -104,11 +104,12 @@
           scales: {
             y: {
               title: { display: true, text: 'Trend EMA' },
-              beginAtZero: true,
-              grid: { color: '#ddd' }
+              grid: { color: '#ddd' },
+              ticks: { color: '#ef4444' },
+              beginAtZero: true
             },
             x: {
-              ticks: { maxTicksLimit: 10 },
+              ticks: { maxTicksLimit: 10, color: '#1e3a8a' },
               grid: { color: '#eee' }
             }
           },
