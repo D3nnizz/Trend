@@ -78,7 +78,10 @@ async function updateChart() {
   if (chart) chart.destroy();
 
   // find max absolute value for symmetric axis
-  const maxAbs = Math.max(...trendEMA.map(v => Math.abs(v)));
+  let maxAbs = Math.max(...trendEMA.map(v => Math.abs(v)));
+
+  // add a little padding so the line isn’t glued to the edge
+  maxAbs = maxAbs * 1.1;
 
   // custom plugin to draw zero line
   const zeroLinePlugin = {
@@ -129,9 +132,9 @@ async function updateChart() {
         y: {
           title: { display: true, text: 'Trend EMA' },
           grid: { color: '#ddd' },
-          min: -maxAbs,   // symmetric scale
-          max: maxAbs,   // symmetric scale
-          ticks: { 
+          min: -maxAbs,   // FORCE symmetric axis
+          max: maxAbs,    // FORCE symmetric axis
+          ticks: {
             color: '#1e3a8a',
             callback: function(value) {
               return value.toFixed(4);
