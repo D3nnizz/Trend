@@ -3,59 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trend EMA Dashboard</title>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <title>Trend EMA Gradient Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #f0f0f0; }
-    .gradient-header {
-      background: linear-gradient(90deg, #1e3a8a, #3b82f6, #ef4444);
-      color: white;
-    }
-    .card-shape {
+    body { background: #f0f0f0; font-family: sans-serif; }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #fff;
       border-radius: 1.5rem;
       box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      overflow: hidden;
       border: 2px solid #3b82f6;
     }
-    .fancy-select {
+    h1 {
+      text-align: center;
+      padding: 1rem;
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+    select {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      border: none;
       background: linear-gradient(90deg, #3b82f6, #60a5fa);
       color: white;
-      font-weight: 600;
-      border: none;
-      border-radius: 1rem;
-      padding: 0.5rem 1rem;
+      font-weight: bold;
       cursor: pointer;
     }
-    .fancy-select option {
-      color: black;
-    }
+    canvas { width: 100% !important; height: 500px !important; }
   </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-6">
-  <div class="card-shape bg-white w-full max-w-5xl">
-    <!-- Header -->
-    <div class="gradient-header text-center py-4">
-      <h1 class="text-3xl font-extrabold tracking-wide">📊 Trend EMA Dashboard</h1>
-    </div>
-
-    <!-- Dropdown -->
-    <div class="flex justify-center py-6">
-      <select id="fileSelect" class="fancy-select">
-        <option value="data/trend_1h.csv">Trend 1H</option>
-        <option value="data/trend_3m.csv">Trend 3M</option>
-        <option value="data/trend_5m.csv">Trend 5M</option>
-      </select>
-    </div>
-
-    <!-- Chart -->
-    <div id="chart" class="w-full h-[500px] px-4 pb-6"></div>
+<body>
+  <div class="container">
+    <h1>📊 Trend EMA Dashboard</h1>
+    <select id="fileSelect">
+      <option value="data/trend_1h.csv">Trend 1H</option>
+      <option value="data/trend_3m.csv">Trend 3M</option>
+      <option value="data/trend_5m.csv">Trend 5M</option>
+    </select>
+    <canvas id="trendChart"></canvas>
   </div>
 
   <script>
-    const chartDiv = document.getElementById('chart');
-    const fileSelect = document.getElementById('fileSelect');
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    let chart;
 
     async function loadCSV(filePath) {
       return new Promise((resolve, reject) => {
@@ -70,63 +68,60 @@
     }
 
     async function updateChart() {
-      const filePath = fileSelect.value;
+      const filePath = document.getElementById('fileSelect').value;
       const data = await loadCSV(filePath);
-      const timestamps = data.map(row => row.timestamp);
+      const labels = data.map(row => row.timestamp);
       const trendEMA = data.map(row => row.trend_ema);
 
-      // Create gradient color array for line
-      const gradientColors = trendEMA.map(v => {
-        if (v < 0) {
-          return v < -0.5 ? '#ef4444' : '#f97316'; // red for low, orange closer to zero
-        } else {
-          return '#22c55e'; // green above zero
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Trend EMA',
+            data: trendEMA,
+            borderWidth: 3,
+            fill: false,
+            borderColor: (context) => {
+              const chart = context.chart;
+              const { ctx, chartArea } = chart;
+              if (!chartArea) return '#3b82f6'; // fallback
+              const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+              gradient.addColorStop(0, '#ef4444'); // red below
+              gradient.addColorStop(0.45, '#f97316'); // orange near zero
+              gradient.addColorStop(0.55, '#22c55e'); // green above zero
+              gradient.addColorStop(1, '#22c55e');
+              return gradient;
+            },
+            tension: 0.25, // smooth curve
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              title: { display: true, text: 'Trend EMA' },
+              beginAtZero: true,
+              grid: { color: '#ddd' }
+            },
+            x: {
+              ticks: { maxTicksLimit: 10 },
+              grid: { color: '#eee' }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
         }
       });
-
-      const traceGradient = {
-        x: timestamps,
-        y: trendEMA,
-        mode: 'lines',
-        line: {
-          width: 3,
-          color: gradientColors,
-        },
-        hovertemplate: '%{y:.4f}<extra></extra>'
-      };
-
-      const yMax = Math.max(...trendEMA);
-      const yMin = Math.min(...trendEMA);
-      const maxAbs = Math.max(Math.abs(yMax), Math.abs(yMin));
-
-      const layout = {
-        title: {
-          text: 'Trend EMA Overview',
-          font: { size: 22, color: '#1e3a8a' }
-        },
-        paper_bgcolor: '#f0f0f0',
-        plot_bgcolor: '#f0f0f0',
-        xaxis: { title: 'Timestamp', showgrid: false, color: '#1e3a8a' },
-        yaxis: {
-          title: 'Trend EMA',
-          range: [-maxAbs, maxAbs], // Center zero line
-          zeroline: true,
-          zerolinewidth: 3,
-          zerolinecolor: '#000',
-          color: '#ef4444'
-        },
-        margin: { t: 50, r: 30, l: 60, b: 50 }
-      };
-
-      Plotly.newPlot(chartDiv, [traceGradient], layout, {responsive: true});
     }
 
-    fileSelect.addEventListener('change', updateChart);
+    document.getElementById('fileSelect').addEventListener('change', updateChart);
 
-    // Initial load
     updateChart();
-
-    // Auto refresh every 60 seconds
     setInterval(updateChart, 60000);
   </script>
 </body>
