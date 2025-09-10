@@ -125,8 +125,8 @@ async function updateChart() {
         y: {
           title: { display: true, text: 'Trend EMA' },
           grid: { color: '#ddd' },
-          min: -maxAbs,
-          max: maxAbs,
+          min: -symmetricLimit,
+          max: symmetricLimit,
           ticks: { 
             color: '#ef4444',
             callback: function(value) {
