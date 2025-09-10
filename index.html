@@ -67,66 +67,81 @@
       });
     }
 
-    async function updateChart() {
-      const filePath = document.getElementById('fileSelect').value;
-      const data = await loadCSV(filePath);
-      const labels = data.map(row => row.timestamp);
-      const trendEMA = data.map(row => row.trend_ema);
+async function updateChart() {
+  const filePath = document.getElementById('fileSelect').value;
+  const data = await loadCSV(filePath);
+  const labels = data.map(row => row.timestamp);
+  const trendEMA = data.map(row => row.trend_ema);
 
-      if (chart) chart.destroy();
+  if (chart) chart.destroy();
 
-      // find max absolute value for symmetric axis
-      const maxAbs = Math.max(...trendEMA.map(v => Math.abs(v)));
+  // find max absolute value for symmetric axis
+  const maxAbs = Math.max(...trendEMA.map(v => Math.abs(v)));
 
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Trend EMA',
-            data: trendEMA,
-            borderWidth: 3,
-            fill: false,
-            pointRadius: 0, // hide points
-            borderColor: (context) => {
-              const chart = context.chart;
-              const { ctx, chartArea } = chart;
-              if (!chartArea) return '#3b82f6';
-              const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-              gradient.addColorStop(0, '#ef4444');
-              gradient.addColorStop(0.45, '#f97316');
-              gradient.addColorStop(0.55, '#22c55e');
-              gradient.addColorStop(1, '#22c55e');
-              return gradient;
-            },
-            tension: 0.25,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              title: { display: true, text: 'Trend EMA' },
-              grid: { color: '#ddd' },
-              ticks: { color: '#ef4444' },
-              suggestedMin: -maxAbs,
-              suggestedMax: maxAbs,
-              // highlight zero line
-              zeroLineWidth: 3,
-              zeroLineColor: '#000'
-            },
-            x: {
-              ticks: { maxTicksLimit: 10, color: '#1e3a8a' },
-              grid: { color: '#eee' }
-            }
-          },
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
+  // custom plugin to draw zero line
+  const zeroLinePlugin = {
+    id: 'zeroLine',
+    afterDraw: (chart) => {
+      const { ctx, scales: { y, x } } = chart;
+      const yZero = y.getPixelForValue(0);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x.left, yZero);
+      ctx.lineTo(x.right, yZero);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#000'; // bold black
+      ctx.stroke();
+      ctx.restore();
     }
+  };
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Trend EMA',
+        data: trendEMA,
+        borderWidth: 3,
+        fill: false,
+        pointRadius: 0, // hide points
+        borderColor: (context) => {
+          const chart = context.chart;
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return '#3b82f6';
+          const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+          gradient.addColorStop(0, '#ef4444');
+          gradient.addColorStop(0.45, '#f97316');
+          gradient.addColorStop(0.55, '#22c55e');
+          gradient.addColorStop(1, '#22c55e');
+          return gradient;
+        },
+        tension: 0.25,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          title: { display: true, text: 'Trend EMA' },
+          grid: { color: '#ddd' },
+          min: -maxAbs,
+          max: maxAbs,
+          ticks: { color: '#ef4444' }
+        },
+        x: {
+          ticks: { maxTicksLimit: 10, color: '#1e3a8a' },
+          grid: { color: '#eee' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    },
+    plugins: [zeroLinePlugin]
+  });
+}
 
     document.getElementById('fileSelect').addEventListener('change', updateChart);
 
