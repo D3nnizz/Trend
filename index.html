@@ -293,15 +293,27 @@
           datasets: [{
             label: 'EMA Trend',
             data: [],
-            borderColor: t.borderColor,
-            backgroundColor: t.backgroundColor,
             borderWidth: 2,
             fill: true,
             tension: 0.35,
-            pointBackgroundColor: t.borderColor,
-            pointBorderColor: t.borderColor,
-            pointRadius: 3,
-            pointHoverRadius: 6
+            pointRadius: 0,
+            segment: {
+              borderColor: ctx => {
+                const v = ctx.p1.parsed.y;
+                if (v > 0.000001) return 'green';   // above zero
+                if (v < -0.000001) return 'red';    // below zero
+                return 'gold';                      // close to zero
+              }
+            },
+            borderColor: 'gray', // fallback
+            backgroundColor: ctx => {
+              const chartCtx = ctx.chart.ctx;
+              const gradient = chartCtx.createLinearGradient(0, 0, 0, ctx.chart.height);
+              gradient.addColorStop(0, "rgba(0,128,0,0.15)");   // top green
+              gradient.addColorStop(0.5, "rgba(255,215,0,0.15)"); // middle yellow
+              gradient.addColorStop(1, "rgba(220,20,60,0.15)"); // bottom red
+              return gradient;
+            }
           }]
         },
         options: {
