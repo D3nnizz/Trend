@@ -23,13 +23,8 @@
             var trace = {
                 x: x,
                 y: y,
-                mode: 'markers',
-                marker: {
-                    color: y,
-                    colorscale: [[0, 'red'], [0.5, 'yellow'], [1, 'green']],
-                    size: 10,
-                    colorbar: { title: "Y value", tickvals: [], showticklabels: false }
-                },
+                mode: 'lines',   // <-- use lines instead of markers
+                line: {color: 'blue'},  // optional: set line color
                 type: 'scatter'
             };
 
