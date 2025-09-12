@@ -276,11 +276,9 @@
     };
 
     // ---------- Chart initialization ----------
-    // ---------- Chart initialization ----------
     function initChart(theme = 'light') {
       const ctx = document.getElementById('emaTrendChart').getContext('2d');
 
-      // destroy any previous chart
       if (chart) {
         try { chart.destroy(); } catch (e) {}
         chart = null;
@@ -293,12 +291,15 @@
         const yMin = scale.min;
         const yMax = scale.max;
 
-        // relative position of 0 (0 = top, 1 = bottom)
+        // relative position of zero
         const zeroPos = (0 - yMax) / (yMin - yMax);
 
-        gradient.addColorStop(0, 'green');  // above zero
-        gradient.addColorStop(Math.max(0, Math.min(1, zeroPos)), 'yellow'); // zero
-        gradient.addColorStop(1, 'red');    // below zero
+        gradient.addColorStop(0, 'green');   // top of chart
+        gradient.addColorStop(
+          Math.max(0, Math.min(1, zeroPos)),
+          'yellow'
+        );                                  // at 0 line
+        gradient.addColorStop(1, 'red');    // bottom of chart
 
         return gradient;
       }
@@ -311,13 +312,13 @@
             label: 'EMA Trend',
             data: [],
             borderWidth: 2,
-            fill: false,   // no area fill, only gradient line
+            fill: false,
             tension: 0.35,
             pointRadius: 0,
-            borderColor: context => {
+            borderColor: function(context) {
               const chart = context.chart;
               const {ctx, chartArea, scales} = chart;
-              if (!chartArea) return '#888'; // chart not ready yet
+              if (!chartArea) return '#888'; // before first layout pass
               return getGradient(ctx, chartArea, scales.y);
             }
           }]
@@ -330,7 +331,7 @@
               display: true,
               position: 'top',
               labels: {
-                color: chartThemes[theme].fontColor,
+                color: theme === 'dark' ? '#ecf0f1' : '#2c3e50',
                 usePointStyle: true,
                 padding: 16,
                 font: { size: 13 }
@@ -338,9 +339,11 @@
             },
             tooltip: {
               enabled: true,
-              backgroundColor: chartThemes[theme].tooltipBg,
-              titleColor: chartThemes[theme].tooltipTitle,
-              bodyColor: chartThemes[theme].tooltipBody,
+              backgroundColor: theme === 'dark'
+                ? "rgba(255,255,255,0.92)"
+                : "rgba(0,0,0,0.8)",
+              titleColor: theme === 'dark' ? "#000000" : "#ffffff",
+              bodyColor: theme === 'dark' ? "#000000" : "#ffffff",
               mode: 'index',
               intersect: false
             }
@@ -352,38 +355,37 @@
           },
           scales: {
             x: {
-              display: true,
-              ticks: { color: chartThemes[theme].fontColor },
-              grid: { color: chartThemes[theme].gridColor },
+              ticks: { color: theme === 'dark' ? '#ecf0f1' : '#2c3e50' },
+              grid: {
+                color: theme === 'dark'
+                  ? 'rgba(255,255,255,0.08)'
+                  : 'rgba(0,0,0,0.08)'
+              },
               title: {
                 display: true,
                 text: 'Time',
-                color: chartThemes[theme].fontColor,
+                color: theme === 'dark' ? '#ecf0f1' : '#2c3e50',
                 font: { weight: '600' }
               }
             },
             y: {
-              display: true,
-              ticks: { color: chartThemes[theme].fontColor },
+              ticks: { color: theme === 'dark' ? '#ecf0f1' : '#2c3e50' },
               grid: {
-                color: ctx => {
-                  if (ctx.tick && ctx.tick.value === 0) return chartThemes[theme].zeroLineColor;
-                  return chartThemes[theme].gridColor;
-                },
-                lineWidth: ctx => {
-                  if (ctx.tick && ctx.tick.value === 0) return 2;
-                  return 1;
-                }
+                color: ctx => ctx.tick.value === 0
+                  ? '#e74c3c'
+                  : (theme === 'dark'
+                    ? 'rgba(255,255,255,0.08)'
+                    : 'rgba(0,0,0,0.08)'),
+                lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1
               },
               title: {
                 display: true,
                 text: 'EMA Trend',
-                color: chartThemes[theme].fontColor,
+                color: theme === 'dark' ? '#ecf0f1' : '#2c3e50',
                 font: { weight: '600' }
               },
               beginAtZero: false,
-              afterDataLimits: scale => {
-                // symmetric around zero
+              afterDataLimits: function(scale) {
                 const maxAbs = Math.max(Math.abs(scale.max), Math.abs(scale.min));
                 scale.max = maxAbs;
                 scale.min = -maxAbs;
@@ -393,6 +395,7 @@
         }
       });
     }
+
 
 
     function updateChartTheme(theme) {
