@@ -15,7 +15,7 @@
 
     <script>
         // Load CSV data
-        d3.csv("data/trend_3m.csv").then(function(rows) {
+        d3.csv("data/trend_15m.csv").then(function(rows) {
             // Convert strings to numbers
             var x = rows.map(r => new Date(r.timestamp));
             var y = rows.map(r => parseFloat(r.trend_ema));
