@@ -723,6 +723,10 @@
     document.getElementById('timeframeSelect').addEventListener('change', function() {
       const filename = this.value;
       localStorage.setItem('selectedTimeframe', filename);
+      
+      // Clear any existing error messages when manually changing timeframes
+      document.getElementById('errorMessage').innerHTML = '';
+      
       loadData(filename);
     });
 
