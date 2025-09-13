@@ -680,8 +680,9 @@
       
       const values = dataRows.map(r => {
         const num = Number(r.trend_ema);
-        return isNaN(num) ? null : num;
-      }).filter(v => v !== null);
+        return isNaN(num) ? null : num;  // keep nulls, don’t filter
+      });
+
 
       if (values.length === 0) {
         console.warn('No valid numeric values found in data');
@@ -689,7 +690,9 @@
       }
 
       const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
-      const option = getChartOption(currentTheme, values, labels.slice(0, values.length));
+      // const option = getChartOption(currentTheme, values, labels.slice(0, values.length));
+      const option = getChartOption(currentTheme, values, labels);
+
       
       chart.setOption(option, true);
       
