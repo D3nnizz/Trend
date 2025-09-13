@@ -299,11 +299,11 @@
     function createGradientLineStyle(data) {
       // Ensure data is valid array with numeric values
       if (!Array.isArray(data) || data.length === 0) {
-        return { color: '#666666' };
+        return '#666666';
       }
 
       const values = data.filter(v => v !== null && v !== undefined && typeof v === 'number' && !isNaN(v));
-      if (values.length === 0) return { color: '#666666' };
+      if (values.length === 0) return '#666666';
       
       const minVal = Math.min(...values);
       const maxVal = Math.max(...values);
@@ -312,9 +312,9 @@
       if (range === 0) {
         // All values are the same
         const value = values[0];
-        if (value > 0.001) return { color: '#22c55e' }; // Green for above zero
-        if (value < -0.001) return { color: '#ef4444' }; // Red for below zero
-        return { color: '#eab308' }; // Yellow for around zero
+        if (value > 0.001) return '#22c55e'; // Green for above zero
+        if (value < -0.001) return '#ef4444'; // Red for below zero
+        return '#eab308'; // Yellow for around zero
       }
 
       // Create gradient with proper color mapping based on value position relative to zero
@@ -346,26 +346,30 @@
     }
 
     function createGradientAreaStyle(data) {
-      const lineStyle = createGradientLineStyle(data);
+      function hexToRgba(hex, alpha) {
+        const clean = (hex || '').replace('#', '');
+        if (clean.length !== 6) return 'rgba(102, 102, 102, 0.15)';
+        const r = parseInt(clean.substring(0, 2), 16);
+        const g = parseInt(clean.substring(2, 4), 16);
+        const b = parseInt(clean.substring(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      }
+
+      const ls = createGradientLineStyle(data);
       
-      if (lineStyle.type === 'linear') {
+      if (typeof ls === 'object' && ls && ls.type === 'linear' && Array.isArray(ls.colorStops)) {
         // Create a more transparent version for area fill
         return {
           type: 'linear',
           x: 0, y: 1, x2: 0, y2: 0,  // Inverted: start from bottom to top
-          colorStops: lineStyle.colorStops.map(stop => ({
-            ...stop,
-            color: stop.color.replace(')', ', 0.15)').replace('#', 'rgba(').replace(/^rgba\((\w{6})/, (match, hex) => {
-              const r = parseInt(hex.substr(0,2), 16);
-              const g = parseInt(hex.substr(2,2), 16);  
-              const b = parseInt(hex.substr(4,2), 16);
-              return `rgba(${r}, ${g}, ${b}`;
-            })
+          colorStops: ls.colorStops.map(stop => ({
+            offset: stop.offset,
+            color: hexToRgba(stop.color, 0.15)
           }))
         };
       } else {
         // Single color, make it transparent
-        const color = lineStyle.color;
+        const color = typeof ls === 'string' ? ls : '#666666';
         if (color === '#22c55e') return 'rgba(34, 197, 94, 0.15)';
         if (color === '#ef4444') return 'rgba(239, 68, 68, 0.15)';
         if (color === '#eab308') return 'rgba(234, 179, 8, 0.15)';
@@ -465,11 +469,7 @@
           },
           splitLine: {
             show: true,
-            lineStyle: {
-              color: v => (Math.abs(v) < 0.0001 ? t.zeroLineColor : t.splitLineColor),
-              width: v => (Math.abs(v) < 0.0001 ? 2 : 1),
-              type: v => (Math.abs(v) < 0.0001 ? 'solid' : 'dashed')
-            }
+            lineStyle: { color: t.splitLineColor, type: 'dashed', width: 1 }
           }
         },
         series: [{
@@ -491,6 +491,12 @@
             }
           },
           areaStyle: { color: areaStyle },
+          markLine: {
+            symbol: 'none',
+            label: { show: false },
+            data: [{ yAxis: 0 }],
+            lineStyle: { color: t.zeroLineColor, width: 2, type: 'solid' }
+          },
           emphasis: { focus: 'series', lineStyle: { width: 4 } }
         }],
         // animation: finalData.length > 0,
