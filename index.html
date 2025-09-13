@@ -375,14 +375,18 @@
 
     function getChartOption(theme, data = [], labels = []) {
       const t = chartThemes[theme];
-      
-      // Ensure data and labels are valid arrays
-      const safeData = Array.isArray(data) ? data.filter(v => v !== null && v !== undefined && typeof v === 'number' && !isNaN(v)) : [];
+
+      // Ensure both arrays are valid and the same length
+      const safeData = Array.isArray(data) ? data : [];
       const safeLabels = Array.isArray(labels) ? labels : [];
-      
-      const lineStyle = createGradientLineStyle(safeData);
-      const areaStyle = createGradientAreaStyle(safeData);
-      
+
+      const minLen = Math.min(safeData.length, safeLabels.length);
+      const finalData = safeData.slice(0, minLen);
+      const finalLabels = safeLabels.slice(0, minLen);
+
+      const lineStyle = createGradientLineStyle(finalData);
+      const areaStyle = createGradientAreaStyle(finalData);
+
       return {
         backgroundColor: t.backgroundColor,
         title: {
@@ -433,7 +437,7 @@
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: safeLabels,
+          data: finalLabels,
           name: 'Time',
           nameLocation: 'middle',
           nameGap: 25,
@@ -441,21 +445,11 @@
             color: t.textColor,
             fontWeight: 'bold'
           },
-          axisLine: {
-            lineStyle: {
-              color: t.axisLineColor
-            }
-          },
-          axisLabel: {
-            color: t.axisLabelColor,
-            rotate: 45
-          },
+          axisLine: { lineStyle: { color: t.axisLineColor } },
+          axisLabel: { color: t.axisLabelColor, rotate: 45 },
           splitLine: {
             show: true,
-            lineStyle: {
-              color: t.splitLineColor,
-              type: 'dashed'
-            }
+            lineStyle: { color: t.splitLineColor, type: 'dashed' }
           }
         },
         yAxis: {
@@ -463,69 +457,43 @@
           name: 'EMA Trend',
           nameLocation: 'middle',
           nameGap: 45,
-          nameTextStyle: {
-            color: t.textColor,
-            fontWeight: 'bold'
-          },
-          axisLine: {
-            lineStyle: {
-              color: t.axisLineColor
-            }
-          },
+          nameTextStyle: { color: t.textColor, fontWeight: 'bold' },
+          axisLine: { lineStyle: { color: t.axisLineColor } },
           axisLabel: {
             color: t.axisLabelColor,
-            formatter: function(value) {
-              return Number(value).toFixed(4);
-            }
+            formatter: v => Number(v).toFixed(4)
           },
           splitLine: {
             show: true,
             lineStyle: {
-              color: function(value) {
-                // Special styling for zero line
-                return Math.abs(value) < 0.0001 ? t.zeroLineColor : t.splitLineColor;
-              },
-              width: function(value) {
-                return Math.abs(value) < 0.0001 ? 2 : 1;
-              },
-              type: function(value) {
-                return Math.abs(value) < 0.0001 ? 'solid' : 'dashed';
-              }
+              color: v => (Math.abs(v) < 0.0001 ? t.zeroLineColor : t.splitLineColor),
+              width: v => (Math.abs(v) < 0.0001 ? 2 : 1),
+              type: v => (Math.abs(v) < 0.0001 ? 'solid' : 'dashed')
             }
           }
         },
         series: [{
           name: 'EMA Trend',
           type: 'line',
-          data: safeData,
+          data: finalData,
           smooth: true,
           smoothMonotone: 'x',
-          lineStyle: {
-            color: lineStyle,
-            width: 3
-          },
+          lineStyle: { color: lineStyle, width: 3 },
           itemStyle: {
-            color: function(params) {
+            color: params => {
               const value = params.data;
               if (typeof value === 'number' && !isNaN(value)) {
                 if (value > 0.001) return '#22c55e'; // Green
                 if (value < -0.001) return '#ef4444'; // Red
                 return '#eab308'; // Yellow
               }
-              return '#666666'; // Gray for invalid data
+              return '#666666'; // Gray for invalid
             }
           },
-          areaStyle: {
-            color: areaStyle
-          },
-          emphasis: {
-            focus: 'series',
-            lineStyle: {
-              width: 4
-            }
-          }
+          areaStyle: { color: areaStyle },
+          emphasis: { focus: 'series', lineStyle: { width: 4 } }
         }],
-        animation: safeData.length > 0, // Only animate if there's data
+        animation: finalData.length > 0,
         animationDuration: 1000,
         animationEasing: 'cubicOut'
       };
