@@ -48,141 +48,142 @@
       --transition: 0.25s ease;
     }
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      padding:20px;
+      min-height:100vh;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      color: var(--text-color);
-      background: var(--bg-gradient);
+      color:var(--text-color);
+      background:var(--bg-gradient);
       transition: background var(--transition), color var(--transition);
     }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      background: var(--container-bg);
-      border-radius: 14px;
-      padding: 28px;
-      box-shadow: var(--shadow);
+    .container{
+      max-width:1400px;
+      margin:0 auto;
+      background:var(--container-bg);
+      border-radius:14px;
+      padding:28px;
+      box-shadow:var(--shadow);
       transition: background var(--transition), box-shadow var(--transition);
-      position: relative;
+      position:relative;
     }
 
-    .header { text-align: center; margin-bottom: 20px; }
-    .header h1 { margin: 0; font-weight: 300; font-size: 2.25rem; letter-spacing: -0.5px; }
+    .header{ text-align:center; margin-bottom:20px; }
+    .header h1{ margin:0; font-weight:300; font-size:2.25rem; letter-spacing:-0.5px }
 
-    .theme-toggle {
-      position: absolute;
-      top: 20px;
-      right: 24px;
-      background: var(--accent);
-      color: #fff;
-      border: 0;
-      padding: 8px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background var(--transition), transform 0.12s;
+    .theme-toggle{
+      position:absolute;
+      top:20px;
+      right:24px;
+      background:var(--accent);
+      color:#fff;
+      border:0;
+      padding:8px 14px;
+      border-radius:20px;
+      cursor:pointer;
+      font-size:14px;
+      transition:background var(--transition), transform 0.12s;
     }
-    .theme-toggle:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .theme-toggle:hover{ background:var(--accent-hover); transform:translateY(-1px); }
 
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 18px;
-      align-items: center;
-      margin: 18px 0 26px;
-      flex-wrap: wrap;
-    }
-
-    .timeframe-selector select {
-      padding: 11px 18px;
-      border-radius: 10px;
-      border: 2px solid var(--border);
-      background: var(--card-bg);
-      color: var(--text-color);
-      font-weight: 600;
-      cursor: pointer;
-      appearance: none;
-      transition: box-shadow var(--transition), border-color var(--transition);
-    }
-    .timeframe-selector select:hover {
-      border-color: var(--accent);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    .controls{
+      display:flex;
+      justify-content:center;
+      gap:18px;
+      align-items:center;
+      margin:18px 0 26px;
+      flex-wrap:wrap;
     }
 
-    .status-indicator {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      padding: 8px 14px;
-      border-radius: 20px;
-      background: var(--status-bg);
-      border: 1px solid var(--status-border);
-      color: var(--status-color);
-      font-weight: 600;
-      font-size: 14px;
+    .timeframe-selector select{
+      padding:11px 18px;
+      border-radius:10px;
+      border:2px solid var(--border);
+      background:var(--card-bg);
+      color:var(--text-color);
+      font-weight:600;
+      cursor:pointer;
+      appearance:none;
+      transition:box-shadow var(--transition), border-color var(--transition);
     }
-    .status-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--status-color);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse { 0% { opacity: 1 } 50% { opacity: .45 } 100% { opacity: 1 } }
-
-    .chart-container {
-      height: 520px;
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 18px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
-      transition: background var(--transition), box-shadow var(--transition);
+    .timeframe-selector select:hover{
+      border-color:var(--accent);
+      box-shadow:0 6px 18px rgba(0,0,0,0.06);
     }
 
-    .chart-info {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-top: 18px;
+    .status-indicator{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:8px 14px;
+      border-radius:20px;
+      background:var(--status-bg);
+      border:1px solid var(--status-border);
+      color:var(--status-color);
+      font-weight:600;
+      font-size:14px;
+    }
+    .status-dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:var(--status-color);
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse{ 0%{opacity:1} 50%{opacity:.45} 100%{opacity:1} }
+
+    .chart-container{
+      height:520px;
+      background:var(--card-bg);
+      border-radius:10px;
+      padding:18px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.04);
+      transition:background var(--transition), box-shadow var(--transition);
     }
 
-    .info-card {
-      background: var(--card-bg);
-      padding: 18px;
-      border-radius: 10px;
-      box-shadow: var(--shadow);
-      text-align: center;
+    .chart-info{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:16px;
+      margin-top:18px;
+    }
+
+    .info-card{
+      background:var(--card-bg);
+      padding:18px;
+      border-radius:10px;
+      box-shadow:var(--shadow);
+      text-align:center;
       transition: transform 0.12s var(--transition), box-shadow var(--transition);
-      border: 1px solid transparent;
+      border:1px solid transparent;
     }
-    .info-card:hover { transform: translateY(-6px); box-shadow: 0 14px 36px rgba(0,0,0,0.12); border-color: var(--border); }
+    .info-card:hover{ transform:translateY(-6px); box-shadow:0 14px 36px rgba(0,0,0,0.12); border-color:var(--border) }
 
-    .info-card h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-color); opacity: .85; }
-    .info-card .value { font-size: 20px; font-weight: 700; color: var(--text-color); }
+    .info-card h3{ margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--text-color); opacity:.85 }
+    .info-card .value{ font-size:20px; font-weight:700; color:var(--text-color) }
 
-    .error-message {
-      margin-top: 18px;
-      border-radius: 8px;
-      padding: 12px 14px;
-      background: var(--error-bg);
-      border: 1px solid var(--error-border);
-      color: var(--error-color);
-      text-align: center;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 30px;
-      color: var(--text-color);
+    .error-message{
+      margin-top:18px;
+      border-radius:8px;
+      padding:12px 14px;
+      background:var(--error-bg);
+      border:1px solid var(--error-border);
+      color:var(--error-color);
+      text-align:center;
     }
 
+    .loading{
+      text-align:center;
+      padding:30px;
+      color:var(--text-color);
+    }
+
+    /* small responsive */
     @media (max-width:700px){
-      .header h1 { font-size: 1.5rem; }
-      .chart-container { height: 420px; }
+      .header h1{font-size:1.5rem}
+      .chart-container{height:420px}
     }
   </style>
 </head>
@@ -278,42 +279,11 @@
       }
     };
 
-    // ---------- Helpers ----------
-    /**
-     * Convert a hex color like "#rrggbb" to "rgba(r,g,b,a)".
-     * If input is already an rgba/other string, returns it as-is (no-op).
-     */
-    function hexToRgba(input, alpha = 1) {
-      if (!input) return `rgba(0,0,0,${alpha})`;
-      const hex = String(input).trim();
-
-      // if already rgba() or rgb() or other format, try to return as-is (user-specified)
-      if (/^rgba?\(/i.test(hex) || /^hsla?\(/i.test(hex)) {
-        return hex;
-      }
-
-      // handle 3-digit and 6-digit hex
-      const m = hex.replace('#', '');
-      if (m.length === 3) {
-        const r = parseInt(m[0] + m[0], 16);
-        const g = parseInt(m[1] + m[1], 16);
-        const b = parseInt(m[2] + m[2], 16);
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-      } else if (m.length === 6) {
-        const r = parseInt(m.substring(0, 2), 16);
-        const g = parseInt(m.substring(2, 4), 16);
-        const b = parseInt(m.substring(4, 6), 16);
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-      }
-
-      // fallback
-      return `rgba(0,0,0,${alpha})`;
-    }
-
     // ---------- Chart initialization ----------
     function initChart(theme = 'light') {
       const chartDom = document.getElementById('emaTrendChart');
-
+      
+      // Dispose of existing chart if it exists
       if (chart) {
         chart.dispose();
         chart = null;
@@ -324,34 +294,41 @@
     }
 
     function createGradientLineStyle(data) {
-      // Filter out invalid values
-      const values = (data || []).filter(v => v !== null && v !== undefined && isFinite(v));
+      // Find min and max values to create proper gradient mapping
+      const values = data.filter(v => v !== null && v !== undefined);
       if (values.length === 0) return { color: '#666666' };
-
+      
       const minVal = Math.min(...values);
       const maxVal = Math.max(...values);
       const range = maxVal - minVal;
-
+      
       if (range === 0) {
+        // All values are the same
         const value = values[0];
-        if (value > 0.001) return { color: '#22c55e' }; // Green
-        if (value < -0.001) return { color: '#ef4444' }; // Red
-        return { color: '#eab308' }; // Yellow
+        if (value > 0.001) return { color: '#22c55e' }; // Green for above zero
+        if (value < -0.001) return { color: '#ef4444' }; // Red for below zero
+        return { color: '#eab308' }; // Yellow for around zero
       }
 
-      // Build gradient stops based on crossing zero or not
+      // Create gradient with proper color mapping based on value position relative to zero
       const gradientStops = [];
+      
+      // Always create a 3-color gradient: Red (bottom) -> Yellow (middle/zero) -> Green (top)
       if (minVal < 0 && maxVal > 0) {
-        const zeroPosition = Math.abs(minVal) / range;
-        gradientStops.push({ offset: 0, color: '#ef4444' });          // Red at bottom
-        gradientStops.push({ offset: zeroPosition, color: '#eab308' });// Yellow at zero
-        gradientStops.push({ offset: 1, color: '#22c55e' });          // Green at top
+        // Data crosses zero - create full red->yellow->green gradient
+        const zeroPosition = Math.abs(minVal) / range; // Position of zero in the range (0-1)
+        
+        gradientStops.push({ offset: 0, color: '#ef4444' });        // Red at bottom (most negative)
+        gradientStops.push({ offset: zeroPosition, color: '#eab308' }); // Yellow at zero
+        gradientStops.push({ offset: 1, color: '#22c55e' });        // Green at top (most positive)
       } else if (maxVal <= 0) {
-        gradientStops.push({ offset: 0, color: '#ef4444' }); // All non-positive -> red -> yellow
-        gradientStops.push({ offset: 1, color: '#eab308' });
-      } else {
-        gradientStops.push({ offset: 0, color: '#eab308' }); // All non-negative -> yellow -> green
-        gradientStops.push({ offset: 1, color: '#22c55e' });
+        // All values are negative or zero - red to yellow gradient
+        gradientStops.push({ offset: 0, color: '#ef4444' }); // Red for most negative
+        gradientStops.push({ offset: 1, color: '#eab308' }); // Yellow approaching zero
+      } else if (minVal >= 0) {
+        // All values are positive or zero - yellow to green gradient  
+        gradientStops.push({ offset: 0, color: '#eab308' }); // Yellow at zero
+        gradientStops.push({ offset: 1, color: '#22c55e' }); // Green for most positive
       }
 
       return {
@@ -363,34 +340,37 @@
 
     function createGradientAreaStyle(data) {
       const lineStyle = createGradientLineStyle(data);
-
-      // If we have a linear gradient (multiple stops), map hex colors to rgba with transparency
-      if (lineStyle && lineStyle.type === 'linear' && Array.isArray(lineStyle.colorStops)) {
+      
+      if (lineStyle.type === 'linear') {
+        // Create a more transparent version for area fill
         return {
           type: 'linear',
-          x: 0, y: 1, x2: 0, y2: 0, // inverted for area fill
+          x: 0, y: 1, x2: 0, y2: 0,  // Inverted: start from bottom to top
           colorStops: lineStyle.colorStops.map(stop => ({
-            offset: stop.offset,
-            color: hexToRgba(stop.color, 0.15)
+            ...stop,
+            color: stop.color.replace(')', ', 0.15)').replace('#', 'rgba(').replace(/^rgba\((\w{6})/, (match, hex) => {
+              const r = parseInt(hex.substr(0,2), 16);
+              const g = parseInt(hex.substr(2,2), 16);  
+              const b = parseInt(hex.substr(4,2), 16);
+              return `rgba(${r}, ${g}, ${b}`;
+            })
           }))
         };
+      } else {
+        // Single color, make it transparent
+        const color = lineStyle.color;
+        if (color === '#22c55e') return 'rgba(34, 197, 94, 0.15)';
+        if (color === '#ef4444') return 'rgba(239, 68, 68, 0.15)';
+        if (color === '#eab308') return 'rgba(234, 179, 8, 0.15)';
+        return 'rgba(102, 102, 102, 0.15)';
       }
-
-      // If a single color string was returned, convert to a transparent rgba
-      const singleColor = (lineStyle && lineStyle.color) || '#666666';
-      if (singleColor === '#22c55e') return 'rgba(34, 197, 94, 0.15)';
-      if (singleColor === '#ef4444') return 'rgba(239, 68, 68, 0.15)';
-      if (singleColor === '#eab308') return 'rgba(234, 179, 8, 0.15)';
-
-      // Generic fallback
-      return hexToRgba(singleColor, 0.15);
     }
 
     function getChartOption(theme, data = [], labels = []) {
-      const t = chartThemes[theme] || chartThemes.light;
+      const t = chartThemes[theme];
       const lineStyle = createGradientLineStyle(data);
       const areaStyle = createGradientAreaStyle(data);
-
+      
       return {
         backgroundColor: t.backgroundColor,
         title: {
@@ -406,8 +386,10 @@
           trigger: 'axis',
           backgroundColor: t.tooltipBgColor,
           borderColor: t.tooltipBgColor,
-          textStyle: { color: t.tooltipTextColor },
-          formatter: function (params) {
+          textStyle: {
+            color: t.tooltipTextColor
+          },
+          formatter: function(params) {
             if (params.length > 0) {
               const param = params[0];
               const value = param.value;
@@ -423,7 +405,9 @@
         legend: {
           data: ['EMA Trend'],
           top: 30,
-          textStyle: { color: t.textColor }
+          textStyle: {
+            color: t.textColor
+          }
         },
         grid: {
           left: '3%',
@@ -439,12 +423,25 @@
           name: 'Time',
           nameLocation: 'middle',
           nameGap: 25,
-          nameTextStyle: { color: t.textColor, fontWeight: 'bold' },
-          axisLine: { lineStyle: { color: t.axisLineColor } },
-          axisLabel: { color: t.axisLabelColor, rotate: 45 },
+          nameTextStyle: {
+            color: t.textColor,
+            fontWeight: 'bold'
+          },
+          axisLine: {
+            lineStyle: {
+              color: t.axisLineColor
+            }
+          },
+          axisLabel: {
+            color: t.axisLabelColor,
+            rotate: 45
+          },
           splitLine: {
             show: true,
-            lineStyle: { color: t.splitLineColor, type: 'dashed' }
+            lineStyle: {
+              color: t.splitLineColor,
+              type: 'dashed'
+            }
           }
         },
         yAxis: {
@@ -452,23 +449,32 @@
           name: 'EMA Trend',
           nameLocation: 'middle',
           nameGap: 45,
-          nameTextStyle: { color: t.textColor, fontWeight: 'bold' },
-          axisLine: { lineStyle: { color: t.axisLineColor } },
+          nameTextStyle: {
+            color: t.textColor,
+            fontWeight: 'bold'
+          },
+          axisLine: {
+            lineStyle: {
+              color: t.axisLineColor
+            }
+          },
           axisLabel: {
             color: t.axisLabelColor,
-            formatter: function (value) { return Number(value).toFixed(4); }
+            formatter: function(value) {
+              return Number(value).toFixed(4);
+            }
           },
           splitLine: {
             show: true,
             lineStyle: {
-              color: function (value) {
-                // Keep zero-line styling special
+              color: function(value) {
+                // Special styling for zero line
                 return Math.abs(value) < 0.0001 ? t.zeroLineColor : t.splitLineColor;
               },
-              width: function (value) {
+              width: function(value) {
                 return Math.abs(value) < 0.0001 ? 2 : 1;
               },
-              type: function (value) {
+              type: function(value) {
                 return Math.abs(value) < 0.0001 ? 'solid' : 'dashed';
               }
             }
@@ -485,17 +491,21 @@
             width: 3
           },
           itemStyle: {
-            color: function (params) {
+            color: function(params) {
               const value = params.data;
-              if (value > 0.001) return '#22c55e';
-              if (value < -0.001) return '#ef4444';
-              return '#eab308';
+              if (value > 0.001) return '#22c55e'; // Green
+              if (value < -0.001) return '#ef4444'; // Red
+              return '#eab308'; // Yellow
             }
           },
-          areaStyle: { color: areaStyle },
+          areaStyle: {
+            color: areaStyle
+          },
           emphasis: {
             focus: 'series',
-            lineStyle: { width: 4 }
+            lineStyle: {
+              width: 4
+            }
           }
         }],
         animation: true,
@@ -506,13 +516,14 @@
 
     function updateChartTheme(theme, isInit = false) {
       if (!chart) return;
-
-      const currentSeriesData = chart.getOption && chart.getOption().series && chart.getOption().series[0] ? chart.getOption().series[0].data : [];
-      const currentXAxisData = chart.getOption && chart.getOption().xAxis && chart.getOption().xAxis[0] ? chart.getOption().xAxis[0].data : [];
-
-      const option = getChartOption(theme, currentSeriesData || [], currentXAxisData || []);
+      
+      const option = getChartOption(theme, 
+        chart.getOption()?.series?.[0]?.data || [], 
+        chart.getOption()?.xAxis?.[0]?.data || []
+      );
+      
       chart.setOption(option, true);
-
+      
       if (!isInit) {
         chart.resize();
       }
@@ -526,6 +537,7 @@
       errorEl.innerHTML = '';
 
       try {
+        // Try multiple possible paths for the CSV files
         const possiblePaths = [
           `data/${filename}`,
           filename,
@@ -537,9 +549,9 @@
 
         for (const path of possiblePaths) {
           try {
-            resp = await fetch(path, { cache: "no-store" });
-            if (resp && resp.ok) break;
-            lastError = resp ? `HTTP ${resp.status} for ${path}` : `Failed to fetch ${path}`;
+            resp = await fetch(path, {cache: "no-store"});
+            if (resp.ok) break;
+            lastError = `HTTP ${resp.status} for ${path}`;
           } catch (e) {
             lastError = `Network error for ${path}: ${e.message}`;
           }
@@ -547,11 +559,12 @@
         }
 
         if (!resp || !resp.ok) {
+          // If no CSV files found, generate demo data
           console.warn(`Could not load ${filename}, generating demo data. Last error: ${lastError}`);
           const demoData = generateDemoData();
           updateChart(demoData);
           updateInfo(demoData, filename);
-
+          
           document.getElementById('errorMessage').innerHTML = `<div class="error-message">
             ⚠️ CSV file "${filename}" not found. Showing demo data.<br>
             <small>Place your CSV files in a "data/" folder or the same directory as this HTML file.</small>
@@ -560,6 +573,7 @@
         }
 
         const csvText = await resp.text();
+        
         if (!csvText.trim()) {
           throw new Error('CSV file is empty');
         }
@@ -568,10 +582,11 @@
           header: true,
           dynamicTyping: true,
           skipEmptyLines: true,
-          delimitersToGuess: [',', ';', '\t', '|']
+          delimitersToGuess: [',',';','\t','|']
         });
 
         if (parseResult.errors && parseResult.errors.length) {
+          // ignore harmless empty-row errors, but show if serious
           const serious = parseResult.errors.filter(e => e.code !== "TooFewFields");
           if (serious.length) {
             throw new Error('CSV parsing error: ' + serious.map(e => e.message).join('; '));
@@ -582,10 +597,9 @@
           throw new Error('Invalid CSV structure - no data array found');
         }
 
-        const rows = parseResult.data.filter(r => {
-          return r && typeof r === 'object' && r.timestamp &&
-            r.trend_ema !== undefined && r.trend_ema !== null && r.trend_ema !== '' &&
-            !isNaN(Number(r.trend_ema));
+        // filter rows that have timestamp and numeric trend_ema
+        const rows = (parseResult.data && Array.isArray(parseResult.data) ? parseResult.data : []).filter(r => {
+          return r && typeof r === 'object' && r.timestamp && r.trend_ema !== undefined && r.trend_ema !== null && r.trend_ema !== '' && !isNaN(Number(r.trend_ema));
         });
 
         if (!rows.length) {
@@ -593,18 +607,20 @@
         }
 
         // sort ascending by timestamp
-        rows.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        rows.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
 
+        // update chart & info
         updateChart(rows);
         updateInfo(rows, filename);
 
+        // Clear any previous error messages on successful load
         errorEl.innerHTML = '';
 
       } catch (err) {
         document.getElementById('errorMessage').innerHTML = `<div class="error-message">Error loading ${filename}: ${err.message}</div>`;
         console.error('Data loading error:', err);
-
-        // fallback to demo data
+        
+        // Generate demo data as fallback
         const demoData = generateDemoData();
         updateChart(demoData);
         updateInfo(demoData, filename);
@@ -618,35 +634,35 @@
       const data = [];
       const startTime = new Date();
       startTime.setHours(startTime.getHours() - 2); // Start 2 hours ago
-
+      
       for (let i = 0; i < 50; i++) {
         const time = new Date(startTime.getTime() + i * 3 * 60 * 1000); // 3-minute intervals
+        // Generate EMA trend data that oscillates around zero with some noise
         const trend = Math.sin(i * 0.2) * 0.01 + (Math.random() - 0.5) * 0.005;
-
+        
         data.push({
           timestamp: time.toISOString(),
           trend_ema: trend
         });
       }
-
+      
       return data;
     }
 
     function updateChart(dataRows) {
       const labels = dataRows.map(r => {
         const d = new Date(r.timestamp);
-        if (isNaN(d)) return r.timestamp;
-        return d.toLocaleTimeString(TIME_LOCALE, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        if (isNaN(d)) return r.timestamp; // fallback
+        return d.toLocaleTimeString(TIME_LOCALE, { hour:'2-digit', minute:'2-digit', second:'2-digit' });
       });
-
       const values = dataRows.map(r => Number(r.trend_ema));
 
       const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
       const option = getChartOption(currentTheme, values, labels);
-
+      
       chart.setOption(option, true);
-
-      // Center y-axis around zero
+      
+      // Center the y-axis around zero
       const maxAbs = Math.max(...values.map(v => Math.abs(v)));
       chart.setOption({
         yAxis: {
@@ -658,8 +674,7 @@
 
     function updateInfo(dataRows, filename) {
       const latest = dataRows[dataRows.length - 1];
-      const latestVal = latest ? Number(latest.trend_ema) : NaN;
-
+      const latestVal = latest ? Number(latest.trend_ema) : 0;
       const timeframeMap = {
         'trend_3m.csv': '3 Minutes',
         'trend_5m.csv': '5 Minutes',
@@ -672,7 +687,7 @@
 
       document.getElementById('latestValue').textContent = (isNaN(latestVal) ? '--' : latestVal.toFixed(6));
       document.getElementById('dataPoints').textContent = dataRows.length;
-      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString(TIME_LOCALE, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString(TIME_LOCALE, { hour:'2-digit', minute:'2-digit', second:'2-digit' });
       document.getElementById('currentTimeframe').textContent = timeframeMap[filename] || filename;
     }
 
@@ -691,49 +706,64 @@
     const themeToggle = document.getElementById('themeToggle');
     function applyTheme(theme) {
       document.body.classList.toggle('dark', theme === 'dark');
+      // toggle button text
       themeToggle.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      // update Chart colors
       updateChartTheme(theme);
     }
 
     // ---------- Window resize handler ----------
-    window.addEventListener('resize', function () {
-      if (chart) chart.resize();
+    window.addEventListener('resize', function() {
+      if (chart) {
+        chart.resize();
+      }
     });
 
     // ---------- Event listeners & initialization ----------
-    document.getElementById('timeframeSelect').addEventListener('change', function () {
+    document.getElementById('timeframeSelect').addEventListener('change', function() {
       const filename = this.value;
       localStorage.setItem('selectedTimeframe', filename);
+      
+      // Clear any existing error messages when manually changing timeframes
       document.getElementById('errorMessage').innerHTML = '';
+      
       loadData(filename);
     });
 
-    themeToggle.addEventListener('click', function () {
+    themeToggle.addEventListener('click', function() {
       const newTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
       localStorage.setItem('theme', newTheme);
       applyTheme(newTheme);
     });
 
-    window.addEventListener('beforeunload', function () {
+    window.addEventListener('beforeunload', function() {
       if (refreshInterval) clearInterval(refreshInterval);
       if (chart) chart.dispose();
     });
 
-    window.addEventListener('load', function () {
+    // on load:
+    window.addEventListener('load', function(){
+      // restore saved timeframe & theme
       const savedTheme = localStorage.getItem('theme') || 'light';
       const savedTimeframe = localStorage.getItem('selectedTimeframe') || DEFAULT_CSV;
 
       // set timeframe select to saved value if present
       const tfSelect = document.getElementById('timeframeSelect');
-      for (let i = 0; i < tfSelect.options.length; i++) {
+      for (let i=0;i<tfSelect.options.length;i++){
         if (tfSelect.options[i].value === savedTimeframe) { tfSelect.selectedIndex = i; break; }
       }
 
+      // init chart and theme
       initChart(savedTheme);
       applyTheme(savedTheme);
 
-      loadData(savedTimeframe);
-      setupAutoRefresh();
+      // load data and start auto-refresh
+      loadData(savedTimeframe, false).then(() => {
+        setupAutoRefresh();
+      }).catch(e => {
+        console.error('Initial load error:', e);
+        setupAutoRefresh(); // Start auto-refresh anyway
+      });
     });
   </script>
 </body>
