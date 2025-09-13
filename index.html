@@ -290,12 +290,19 @@
       }
 
       chart = echarts.init(chartDom);
-      updateChartTheme(theme, true);
+      
+      // Initialize with empty data to prevent errors
+      const emptyOption = getChartOption(theme, [], []);
+      chart.setOption(emptyOption, true);
     }
 
     function createGradientLineStyle(data) {
-      // Find min and max values to create proper gradient mapping
-      const values = data.filter(v => v !== null && v !== undefined);
+      // Ensure data is valid array with numeric values
+      if (!Array.isArray(data) || data.length === 0) {
+        return { color: '#666666' };
+      }
+
+      const values = data.filter(v => v !== null && v !== undefined && typeof v === 'number' && !isNaN(v));
       if (values.length === 0) return { color: '#666666' };
       
       const minVal = Math.min(...values);
@@ -368,8 +375,13 @@
 
     function getChartOption(theme, data = [], labels = []) {
       const t = chartThemes[theme];
-      const lineStyle = createGradientLineStyle(data);
-      const areaStyle = createGradientAreaStyle(data);
+      
+      // Ensure data and labels are valid arrays
+      const safeData = Array.isArray(data) ? data.filter(v => v !== null && v !== undefined && typeof v === 'number' && !isNaN(v)) : [];
+      const safeLabels = Array.isArray(labels) ? labels : [];
+      
+      const lineStyle = createGradientLineStyle(safeData);
+      const areaStyle = createGradientAreaStyle(safeData);
       
       return {
         backgroundColor: t.backgroundColor,
@@ -390,16 +402,18 @@
             color: t.tooltipTextColor
           },
           formatter: function(params) {
-            if (params.length > 0) {
+            if (params && params.length > 0) {
               const param = params[0];
               const value = param.value;
-              let colorIndicator = '';
-              if (value > 0.001) colorIndicator = '🟢 ';
-              else if (value < -0.001) colorIndicator = '🔴 ';
-              else colorIndicator = '🟡 ';
-              return `${colorIndicator}Time: ${param.axisValueLabel}<br/>EMA Trend: ${value !== null ? Number(value).toFixed(6) : '--'}`;
+              if (value !== null && value !== undefined && typeof value === 'number' && !isNaN(value)) {
+                let colorIndicator = '';
+                if (value > 0.001) colorIndicator = '🟢 ';
+                else if (value < -0.001) colorIndicator = '🔴 ';
+                else colorIndicator = '🟡 ';
+                return `${colorIndicator}Time: ${param.axisValueLabel}<br/>EMA Trend: ${Number(value).toFixed(6)}`;
+              }
             }
-            return '';
+            return 'No data available';
           }
         },
         legend: {
@@ -419,7 +433,7 @@
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: labels,
+          data: safeLabels,
           name: 'Time',
           nameLocation: 'middle',
           nameGap: 25,
@@ -483,7 +497,7 @@
         series: [{
           name: 'EMA Trend',
           type: 'line',
-          data: data,
+          data: safeData,
           smooth: true,
           smoothMonotone: 'x',
           lineStyle: {
@@ -493,9 +507,12 @@
           itemStyle: {
             color: function(params) {
               const value = params.data;
-              if (value > 0.001) return '#22c55e'; // Green
-              if (value < -0.001) return '#ef4444'; // Red
-              return '#eab308'; // Yellow
+              if (typeof value === 'number' && !isNaN(value)) {
+                if (value > 0.001) return '#22c55e'; // Green
+                if (value < -0.001) return '#ef4444'; // Red
+                return '#eab308'; // Yellow
+              }
+              return '#666666'; // Gray for invalid data
             }
           },
           areaStyle: {
@@ -508,7 +525,7 @@
             }
           }
         }],
-        animation: true,
+        animation: safeData.length > 0, // Only animate if there's data
         animationDuration: 1000,
         animationEasing: 'cubicOut'
       };
@@ -517,11 +534,12 @@
     function updateChartTheme(theme, isInit = false) {
       if (!chart) return;
       
-      const option = getChartOption(theme, 
-        chart.getOption()?.series?.[0]?.data || [], 
-        chart.getOption()?.xAxis?.[0]?.data || []
-      );
+      // Get current data safely
+      const currentOption = chart.getOption();
+      const currentData = currentOption?.series?.[0]?.data || [];
+      const currentLabels = currentOption?.xAxis?.[0]?.data || [];
       
+      const option = getChartOption(theme, currentData, currentLabels);
       chart.setOption(option, true);
       
       if (!isInit) {
@@ -650,29 +668,51 @@
     }
 
     function updateChart(dataRows) {
+      if (!chart || !Array.isArray(dataRows) || dataRows.length === 0) {
+        return;
+      }
+
       const labels = dataRows.map(r => {
         const d = new Date(r.timestamp);
         if (isNaN(d)) return r.timestamp; // fallback
         return d.toLocaleTimeString(TIME_LOCALE, { hour:'2-digit', minute:'2-digit', second:'2-digit' });
       });
-      const values = dataRows.map(r => Number(r.trend_ema));
+      
+      const values = dataRows.map(r => {
+        const num = Number(r.trend_ema);
+        return isNaN(num) ? null : num;
+      }).filter(v => v !== null);
+
+      if (values.length === 0) {
+        console.warn('No valid numeric values found in data');
+        return;
+      }
 
       const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
-      const option = getChartOption(currentTheme, values, labels);
+      const option = getChartOption(currentTheme, values, labels.slice(0, values.length));
       
       chart.setOption(option, true);
       
       // Center the y-axis around zero
       const maxAbs = Math.max(...values.map(v => Math.abs(v)));
-      chart.setOption({
-        yAxis: {
-          min: -maxAbs * 1.1,
-          max: maxAbs * 1.1
-        }
-      });
+      if (maxAbs > 0) {
+        chart.setOption({
+          yAxis: {
+            min: -maxAbs * 1.1,
+            max: maxAbs * 1.1
+          }
+        });
+      }
     }
 
     function updateInfo(dataRows, filename) {
+      if (!Array.isArray(dataRows) || dataRows.length === 0) {
+        document.getElementById('latestValue').textContent = '--';
+        document.getElementById('dataPoints').textContent = '0';
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString(TIME_LOCALE, { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+        return;
+      }
+
       const latest = dataRows[dataRows.length - 1];
       const latestVal = latest ? Number(latest.trend_ema) : 0;
       const timeframeMap = {
