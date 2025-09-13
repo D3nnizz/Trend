@@ -305,34 +305,30 @@
       if (range === 0) {
         // All values are the same
         const value = values[0];
-        if (value > 0.001) return { color: '#22c55e' }; // Green
-        if (value < -0.001) return { color: '#ef4444' }; // Red  
-        return { color: '#eab308' }; // Yellow
+        if (value > 0.001) return { color: '#22c55e' }; // Green for above zero
+        if (value < -0.001) return { color: '#ef4444' }; // Red for below zero
+        return { color: '#eab308' }; // Yellow for around zero
       }
 
-      // Create gradient stops based on the data range
+      // Create gradient with proper color mapping based on value position relative to zero
       const gradientStops = [];
       
-      // If range includes negative values
-      if (minVal < -0.001) {
-        gradientStops.push({ offset: 0, color: '#ef4444' }); // Red for most negative
+      // Always create a 3-color gradient: Red (bottom) -> Yellow (middle/zero) -> Green (top)
+      if (minVal < 0 && maxVal > 0) {
+        // Data crosses zero - create full red->yellow->green gradient
+        const zeroPosition = Math.abs(minVal) / range; // Position of zero in the range (0-1)
         
-        // If we cross zero, add yellow transition
-        if (maxVal > 0.001) {
-          const zeroPosition = Math.abs(minVal) / range;
-          gradientStops.push({ offset: Math.max(0.1, Math.min(0.9, zeroPosition - 0.05)), color: '#eab308' }); // Yellow approach
-          gradientStops.push({ offset: Math.max(0.1, Math.min(0.9, zeroPosition + 0.05)), color: '#eab308' }); // Yellow exit
-        }
-      }
-      
-      // If range includes positive values  
-      if (maxVal > 0.001) {
+        gradientStops.push({ offset: 0, color: '#ef4444' });        // Red at bottom (most negative)
+        gradientStops.push({ offset: zeroPosition, color: '#eab308' }); // Yellow at zero
+        gradientStops.push({ offset: 1, color: '#22c55e' });        // Green at top (most positive)
+      } else if (maxVal <= 0) {
+        // All values are negative or zero - red to yellow gradient
+        gradientStops.push({ offset: 0, color: '#ef4444' }); // Red for most negative
+        gradientStops.push({ offset: 1, color: '#eab308' }); // Yellow approaching zero
+      } else if (minVal >= 0) {
+        // All values are positive or zero - yellow to green gradient  
+        gradientStops.push({ offset: 0, color: '#eab308' }); // Yellow at zero
         gradientStops.push({ offset: 1, color: '#22c55e' }); // Green for most positive
-      }
-      
-      // If all values are near zero
-      if (Math.abs(minVal) < 0.001 && Math.abs(maxVal) < 0.001) {
-        return { color: '#eab308' }; // Yellow
       }
 
       return {
