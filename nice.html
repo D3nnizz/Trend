@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>EMA Trend Dashboard — Light / Dark</title>
 
-  <!-- ECharts & PapaParse -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <!-- Chart.js & PapaParse -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <style>
@@ -215,7 +215,7 @@
     </div>
 
     <div class="chart-container">
-      <div id="emaTrendChart" style="width: 100%; height: 100%;" aria-label="EMA trend chart"></div>
+      <canvas id="emaTrendChart" aria-label="EMA trend chart"></canvas>
     </div>
 
     <div class="chart-info" role="region" aria-label="Chart summary">
@@ -254,194 +254,165 @@
 
     const chartThemes = {
       light: {
-        backgroundColor: '#ffffff',
-        textColor: '#2c3e50',
-        axisLineColor: '#e0e6ed',
-        axisLabelColor: '#2c3e50',
-        splitLineColor: '#f5f5f5',
-        zeroLineColor: '#e74c3c',
-        lineColor: '#3498db',
-        areaColor: 'rgba(52,152,219,0.10)',
-        tooltipBgColor: 'rgba(0,0,0,0.8)',
-        tooltipTextColor: '#ffffff'
+        borderColor: "#3498db",
+        backgroundColor: "rgba(52,152,219,0.10)",
+        gridColor: "rgba(0,0,0,0.08)",
+        fontColor: "#2c3e50",
+        tooltipBg: "rgba(0,0,0,0.8)",
+        tooltipTitle: "#ffffff",
+        tooltipBody: "#ffffff",
+        zeroLineColor: "#e74c3c"
       },
       dark: {
-        backgroundColor: '#1f2937',
-        textColor: '#ecf0f1',
-        axisLineColor: '#3b4252',
-        axisLabelColor: '#ecf0f1',
-        splitLineColor: '#374151',
-        zeroLineColor: '#e74c3c',
-        lineColor: '#9b59b6',
-        areaColor: 'rgba(155,89,182,0.12)',
-        tooltipBgColor: 'rgba(255,255,255,0.92)',
-        tooltipTextColor: '#000000'
+        borderColor: "#9b59b6",
+        backgroundColor: "rgba(155,89,182,0.12)",
+        gridColor: "rgba(255,255,255,0.08)",
+        fontColor: "#ecf0f1",
+        tooltipBg: "rgba(255,255,255,0.92)",
+        tooltipTitle: "#000000",
+        tooltipBody: "#000000",
+        zeroLineColor: "#e74c3c"
       }
     };
 
     // ---------- Chart initialization ----------
     function initChart(theme = 'light') {
-      const chartDom = document.getElementById('emaTrendChart');
-      
-      // Dispose of existing chart if it exists
+      const ctx = document.getElementById('emaTrendChart').getContext('2d');
+      const t = chartThemes[theme];
+
+      // If a chart already exists, destroy it first
       if (chart) {
-        chart.dispose();
+        try { chart.destroy(); } catch (e) { /* ignore */ }
         chart = null;
       }
 
-      chart = echarts.init(chartDom);
-      updateChartTheme(theme, true);
-    }
-
-    function getChartOption(theme, data = [], labels = []) {
-      const t = chartThemes[theme];
-      
-      return {
-        backgroundColor: t.backgroundColor,
-        title: {
-          text: 'EMA Trend',
-          left: 'center',
-          textStyle: {
-            color: t.textColor,
-            fontSize: 16,
-            fontWeight: 'normal'
-          }
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'EMA Trend',
+            data: [],
+            borderColor: t.borderColor,
+            backgroundColor: t.backgroundColor,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: t.borderColor,
+            pointBorderColor: t.borderColor,
+            pointRadius: 3,
+            pointHoverRadius: 6
+          }]
         },
-        tooltip: {
-          trigger: 'axis',
-          backgroundColor: t.tooltipBgColor,
-          borderColor: t.tooltipBgColor,
-          textStyle: {
-            color: t.tooltipTextColor
-          },
-          formatter: function(params) {
-            if (params.length > 0) {
-              const param = params[0];
-              return `Time: ${param.axisValueLabel}<br/>EMA Trend: ${param.value !== null ? Number(param.value).toFixed(6) : '--'}`;
-            }
-            return '';
-          }
-        },
-        legend: {
-          data: ['EMA Trend'],
-          top: 30,
-          textStyle: {
-            color: t.textColor
-          }
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          top: '15%',
-          containLabel: true
-        },
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: labels,
-          name: 'Time',
-          nameLocation: 'middle',
-          nameGap: 25,
-          nameTextStyle: {
-            color: t.textColor,
-            fontWeight: 'bold'
-          },
-          axisLine: {
-            lineStyle: {
-              color: t.axisLineColor
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: t.fontColor,
+                usePointStyle: true,
+                padding: 16,
+                font: { size: 13 }
+              }
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipTitle,
+              bodyColor: t.tooltipBody,
+              mode: 'index',
+              intersect: false
             }
           },
-          axisLabel: {
-            color: t.axisLabelColor,
-            rotate: 45
+          interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false
           },
-          splitLine: {
-            show: true,
-            lineStyle: {
-              color: t.splitLineColor,
-              type: 'dashed'
-            }
-          }
-        },
-        yAxis: {
-          type: 'value',
-          name: 'EMA Trend',
-          nameLocation: 'middle',
-          nameGap: 45,
-          nameTextStyle: {
-            color: t.textColor,
-            fontWeight: 'bold'
-          },
-          axisLine: {
-            lineStyle: {
-              color: t.axisLineColor
-            }
-          },
-          axisLabel: {
-            color: t.axisLabelColor,
-            formatter: function(value) {
-              return Number(value).toFixed(4);
-            }
-          },
-          splitLine: {
-            show: true,
-            lineStyle: {
-              color: function(value) {
-                // Special styling for zero line
-                return Math.abs(value) < 0.0001 ? t.zeroLineColor : t.splitLineColor;
+          scales: {
+            x: {
+              display: true,
+              ticks: { color: t.fontColor },
+              grid: {
+                color: t.gridColor
               },
-              width: function(value) {
-                return Math.abs(value) < 0.0001 ? 2 : 1;
+              title: {
+                display: true,
+                text: 'Time',
+                color: t.fontColor,
+                font: { weight: '600' }
+              }
+            },
+            y: {
+              display: true,
+              ticks: { color: t.fontColor },
+              grid: {
+                color: function(context) {
+                  // if tick exists and equals zero, draw zero line in special color
+                  if (context.tick && context.tick.value === 0) return t.zeroLineColor;
+                  return t.gridColor;
+                },
+                lineWidth: function(context) {
+                  if (context.tick && context.tick.value === 0) return 2;
+                  return 1;
+                }
               },
-              type: function(value) {
-                return Math.abs(value) < 0.0001 ? 'solid' : 'dashed';
+              title: {
+                display: true,
+                text: 'EMA Trend',
+                color: t.fontColor,
+                font: { weight: '600' }
+              },
+              beginAtZero: false,
+              afterDataLimits: function(scale) {
+                // center zero line by making max & min symmetric
+                const maxAbs = Math.max(Math.abs(scale.max), Math.abs(scale.min));
+                scale.max = maxAbs;
+                scale.min = -maxAbs;
               }
             }
           }
-        },
-        series: [{
-          name: 'EMA Trend',
-          type: 'line',
-          data: data,
-          smooth: true,
-          smoothMonotone: 'x',
-          lineStyle: {
-            color: t.lineColor,
-            width: 2
-          },
-          itemStyle: {
-            color: t.lineColor
-          },
-          areaStyle: {
-            color: t.areaColor
-          },
-          emphasis: {
-            focus: 'series',
-            lineStyle: {
-              width: 3
-            }
-          }
-        }],
-        animation: true,
-        animationDuration: 1000,
-        animationEasing: 'cubicOut'
-      };
+        }
+      });
     }
 
-    function updateChartTheme(theme, isInit = false) {
+    function updateChartTheme(theme) {
       if (!chart) return;
-      
-      const option = getChartOption(theme, 
-        chart.getOption()?.series?.[0]?.data || [], 
-        chart.getOption()?.xAxis?.[0]?.data || []
-      );
-      
-      chart.setOption(option, true);
-      
-      if (!isInit) {
-        chart.resize();
-      }
+      const t = chartThemes[theme];
+
+      // dataset style
+      const ds = chart.data.datasets[0];
+      ds.borderColor = t.borderColor;
+      ds.backgroundColor = t.backgroundColor;
+      ds.pointBackgroundColor = t.borderColor;
+      ds.pointBorderColor = t.borderColor;
+
+      // legend & tooltip
+      chart.options.plugins.legend.labels.color = t.fontColor;
+      chart.options.plugins.tooltip.backgroundColor = t.tooltipBg;
+      chart.options.plugins.tooltip.titleColor = t.tooltipTitle;
+      chart.options.plugins.tooltip.bodyColor = t.tooltipBody;
+
+      // axes
+      chart.options.scales.x.ticks.color = t.fontColor;
+      chart.options.scales.x.grid.color = t.gridColor;
+      chart.options.scales.x.title.color = t.fontColor;
+
+      chart.options.scales.y.ticks.color = t.fontColor;
+      chart.options.scales.y.title.color = t.fontColor;
+      chart.options.scales.y.grid.color = function(context) {
+        if (context.tick && context.tick.value === 0) return t.zeroLineColor;
+        return t.gridColor;
+      };
+      chart.options.scales.y.grid.lineWidth = function(context) {
+        if (context.tick && context.tick.value === 0) return 2;
+        return 1;
+      };
+
+      chart.update();
     }
 
     // ---------- Data loading (CSV) ----------
@@ -503,21 +474,11 @@
         if (isNaN(d)) return r.timestamp; // fallback
         return d.toLocaleTimeString(TIME_LOCALE, { hour:'2-digit', minute:'2-digit', second:'2-digit' });
       });
-      const values = dataRows.map(r => Number(r.trend_ema));
+      const values = dataRows.map(r => Number(r.trend_ema) );
 
-      const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
-      const option = getChartOption(currentTheme, values, labels);
-      
-      chart.setOption(option, true);
-      
-      // Center the y-axis around zero
-      const maxAbs = Math.max(...values.map(v => Math.abs(v)));
-      chart.setOption({
-        yAxis: {
-          min: -maxAbs * 1.1,
-          max: maxAbs * 1.1
-        }
-      });
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = values;
+      chart.update('none');
     }
 
     function updateInfo(dataRows, filename) {
@@ -560,13 +521,6 @@
       updateChartTheme(theme);
     }
 
-    // ---------- Window resize handler ----------
-    window.addEventListener('resize', function() {
-      if (chart) {
-        chart.resize();
-      }
-    });
-
     // ---------- Event listeners & initialization ----------
     document.getElementById('timeframeSelect').addEventListener('change', function() {
       const filename = this.value;
@@ -582,7 +536,6 @@
 
     window.addEventListener('beforeunload', function() {
       if (refreshInterval) clearInterval(refreshInterval);
-      if (chart) chart.dispose();
     });
 
     // on load:
