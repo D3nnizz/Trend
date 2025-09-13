@@ -758,8 +758,12 @@
       applyTheme(savedTheme);
 
       // load data and start auto-refresh
-      loadData(savedTimeframe);
-      setupAutoRefresh();
+      loadData(savedTimeframe, false).then(() => {
+        setupAutoRefresh();
+      }).catch(e => {
+        console.error('Initial load error:', e);
+        setupAutoRefresh(); // Start auto-refresh anyway
+      });
     });
   </script>
 </body>
