@@ -387,6 +387,9 @@
       const minLen = Math.min(safeData.length, safeLabels.length);
       const finalData = safeData.slice(0, minLen);
       const finalLabels = safeLabels.slice(0, minLen);
+      // Determine label step to reduce timestamp density on the x-axis
+      const desiredLabelCount = 6; // target number of visible labels
+      const labelStep = Math.max(1, Math.ceil((finalLabels.length || 1) / desiredLabelCount));
 
       const lineStyle = createGradientLineStyle(finalData);
       const areaStyle = createGradientAreaStyle(finalData);
@@ -450,7 +453,16 @@
             fontWeight: 'bold'
           },
           axisLine: { lineStyle: { color: t.axisLineColor } },
-          axisLabel: { color: t.axisLabelColor, rotate: 45 },
+          axisLabel: {
+            color: t.axisLabelColor,
+            rotate: 45,
+            hideOverlap: true,
+            interval: (index) => index % labelStep === 0
+          },
+          axisTick: {
+            alignWithLabel: true,
+            interval: (index) => index % labelStep === 0
+          },
           splitLine: {
             show: true,
             lineStyle: { color: t.splitLineColor, type: 'dashed' }
@@ -473,7 +485,7 @@
           }
         },
         series: [{
-          name: 'Value',
+          name: 'Trend',
           type: 'line',
           data: finalData,
           smooth: true,
