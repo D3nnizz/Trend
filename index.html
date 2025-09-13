@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>EMA Trend Dashboard — Light / Dark</title>
+  <title>Trend Dashboard — Light / Dark</title>
 
   <!-- ECharts & PapaParse -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
@@ -192,7 +192,7 @@
     <button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
 
     <div class="header">
-      <h1>EMA Trend Dashboard</h1>
+      <h1>Trend Dashboard</h1>
     </div>
 
     <div class="controls">
@@ -215,7 +215,7 @@
     </div>
 
     <div class="chart-container">
-      <div id="emaTrendChart" style="width: 100%; height: 100%;" aria-label="EMA trend chart"></div>
+      <div id="emaTrendChart" style="width: 100%; height: 100%;" aria-label="Trend chart"></div>
     </div>
 
     <div class="chart-info" role="region" aria-label="Chart summary">
@@ -418,14 +418,14 @@
                 if (value > 0.001) colorIndicator = '🟢 ';
                 else if (value < -0.001) colorIndicator = '🔴 ';
                 else colorIndicator = '🟡 ';
-                return `${colorIndicator}Time: ${param.axisValueLabel}<br/>EMA Trend: ${Number(value).toFixed(6)}`;
+                return `${colorIndicator}Time: ${param.axisValueLabel}<br/>Trend: ${Number(value).toFixed(6)}`;
               }
             }
             return 'No data available';
           }
         },
         legend: {
-          data: ['EMA Trend'],
+          data: ['Percentage'],
           top: 30,
           textStyle: {
             color: t.textColor
@@ -458,7 +458,7 @@
         },
         yAxis: {
           type: 'value',
-          name: 'EMA Trend',
+          name: 'Percantage',
           nameLocation: 'middle',
           nameGap: 45,
           nameTextStyle: { color: t.textColor, fontWeight: 'bold' },
@@ -473,7 +473,7 @@
           }
         },
         series: [{
-          name: 'EMA Trend',
+          name: 'Value',
           type: 'line',
           data: finalData,
           smooth: true,
@@ -499,9 +499,7 @@
           },
           emphasis: { focus: 'series', lineStyle: { width: 4 } }
         }],
-        // animation: finalData.length > 0,
-        // animationDuration: 1000,
-        // animationEasing: 'cubicOut'
+        animationDurationUpdate: 0
       };
     }
 
