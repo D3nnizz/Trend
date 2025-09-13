@@ -598,8 +598,8 @@
         }
 
         // filter rows that have timestamp and numeric trend_ema
-        const rows = parseResult.data.filter(r => {
-          return r && r.timestamp && r.trend_ema !== undefined && r.trend_ema !== null && r.trend_ema !== '' && !isNaN(Number(r.trend_ema));
+        const rows = (parseResult.data && Array.isArray(parseResult.data) ? parseResult.data : []).filter(r => {
+          return r && typeof r === 'object' && r.timestamp && r.trend_ema !== undefined && r.trend_ema !== null && r.trend_ema !== '' && !isNaN(Number(r.trend_ema));
         });
 
         if (!rows.length) {
