@@ -537,11 +537,46 @@
       errorEl.innerHTML = '';
 
       try {
-        const resp = await fetch(`data/${filename}`, {cache: "no-store"});
-        if (!resp.ok) {
-          throw new Error(`HTTP ${resp.status} - Make sure "data/${filename}" exists`);
+        // Try multiple possible paths for the CSV files
+        const possiblePaths = [
+          `data/${filename}`,
+          filename,
+          `./${filename}`
+        ];
+
+        let resp = null;
+        let lastError = null;
+
+        for (const path of possiblePaths) {
+          try {
+            resp = await fetch(path, {cache: "no-store"});
+            if (resp.ok) break;
+            lastError = `HTTP ${resp.status} for ${path}`;
+          } catch (e) {
+            lastError = `Network error for ${path}: ${e.message}`;
+          }
+          resp = null;
         }
+
+        if (!resp || !resp.ok) {
+          // If no CSV files found, generate demo data
+          console.warn(`Could not load ${filename}, generating demo data. Last error: ${lastError}`);
+          const demoData = generateDemoData();
+          updateChart(demoData);
+          updateInfo(demoData, filename);
+          
+          document.getElementById('errorMessage').innerHTML = `<div class="error-message">
+            ⚠️ CSV file "${filename}" not found. Showing demo data.<br>
+            <small>Place your CSV files in a "data/" folder or the same directory as this HTML file.</small>
+          </div>`;
+          return;
+        }
+
         const csvText = await resp.text();
+        
+        if (!csvText.trim()) {
+          throw new Error('CSV file is empty');
+        }
 
         const parseResult = Papa.parse(csvText, {
           header: true,
@@ -558,9 +593,13 @@
           }
         }
 
+        if (!parseResult.data || !Array.isArray(parseResult.data)) {
+          throw new Error('Invalid CSV structure - no data array found');
+        }
+
         // filter rows that have timestamp and numeric trend_ema
-        const rows = (parseResult.data || []).filter(r => {
-          return r.timestamp && r.trend_ema !== undefined && r.trend_ema !== null && r.trend_ema !== '' && !isNaN(Number(r.trend_ema));
+        const rows = (parseResult.data && Array.isArray(parseResult.data) ? parseResult.data : []).filter(r => {
+          return r && typeof r === 'object' && r.timestamp && r.trend_ema !== undefined && r.trend_ema !== null && r.trend_ema !== '' && !isNaN(Number(r.trend_ema));
         });
 
         if (!rows.length) {
@@ -574,12 +613,40 @@
         updateChart(rows);
         updateInfo(rows, filename);
 
+        // Clear any previous error messages on successful load
+        errorEl.innerHTML = '';
+
       } catch (err) {
         document.getElementById('errorMessage').innerHTML = `<div class="error-message">Error loading ${filename}: ${err.message}</div>`;
-        console.error(err);
+        console.error('Data loading error:', err);
+        
+        // Generate demo data as fallback
+        const demoData = generateDemoData();
+        updateChart(demoData);
+        updateInfo(demoData, filename);
       } finally {
         loadingEl.style.display = 'none';
       }
+    }
+
+    // ---------- Demo data generator ----------
+    function generateDemoData() {
+      const data = [];
+      const startTime = new Date();
+      startTime.setHours(startTime.getHours() - 2); // Start 2 hours ago
+      
+      for (let i = 0; i < 50; i++) {
+        const time = new Date(startTime.getTime() + i * 3 * 60 * 1000); // 3-minute intervals
+        // Generate EMA trend data that oscillates around zero with some noise
+        const trend = Math.sin(i * 0.2) * 0.01 + (Math.random() - 0.5) * 0.005;
+        
+        data.push({
+          timestamp: time.toISOString(),
+          trend_ema: trend
+        });
+      }
+      
+      return data;
     }
 
     function updateChart(dataRows) {
@@ -588,11 +655,21 @@
         if (isNaN(d)) return r.timestamp; // fallback
         return d.toLocaleTimeString(TIME_LOCALE, { hour:'2-digit', minute:'2-digit', second:'2-digit' });
       });
-      const values = dataRows.map(r => Number(r.trend_ema) );
+      const values = dataRows.map(r => Number(r.trend_ema));
 
-      chart.data.labels = labels;
-      chart.data.datasets[0].data = values;
-      chart.update('none');
+      const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+      const option = getChartOption(currentTheme, values, labels);
+      
+      chart.setOption(option, true);
+      
+      // Center the y-axis around zero
+      const maxAbs = Math.max(...values.map(v => Math.abs(v)));
+      chart.setOption({
+        yAxis: {
+          min: -maxAbs * 1.1,
+          max: maxAbs * 1.1
+        }
+      });
     }
 
     function updateInfo(dataRows, filename) {
@@ -635,6 +712,13 @@
       updateChartTheme(theme);
     }
 
+    // ---------- Window resize handler ----------
+    window.addEventListener('resize', function() {
+      if (chart) {
+        chart.resize();
+      }
+    });
+
     // ---------- Event listeners & initialization ----------
     document.getElementById('timeframeSelect').addEventListener('change', function() {
       const filename = this.value;
@@ -650,6 +734,7 @@
 
     window.addEventListener('beforeunload', function() {
       if (refreshInterval) clearInterval(refreshInterval);
+      if (chart) chart.dispose();
     });
 
     // on load:
